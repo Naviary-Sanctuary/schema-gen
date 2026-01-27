@@ -1,0 +1,31 @@
+---
+name: Feature request
+about: Suggest an idea for this project
+title: Feature
+labels: enhancement
+assignees: changchanghwang
+---
+
+| name      | about                     | title | labels | assignees |
+| --------- | ------------------------- | ----- | ------ | --------- |
+| ✨Feature | this is a awesome feature |       |        |           |
+
+### Describe the feature
+
+A clear and concise description of what the feature do.
+
+### Expected behavior
+
+A clear and concise description of what you expected to happen.
+
+### Example Code
+
+```typescript
+console.log("hello world")
+```
+
+### Information
+
+Version[e.g. v0.1.0]:
+OS[e.g. iOS]:
+Browser[e.g. chrome 62]:
