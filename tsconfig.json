@@ -4,23 +4,23 @@
     "target": "ESNext",
     "module": "ESNext",
     "types": ["@types/bun"],
-    
+
     // Module resolution
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    
+
     // Emit
     "noEmit": false,
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    
+
     // Path mapping
     "baseUrl": ".",
-    
+
     // Best practices
     "strict": true,
     "skipLibCheck": true,
@@ -29,10 +29,13 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    
+
     // Decorators
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "paths": {
+      "@types": ["./src/types"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"]
