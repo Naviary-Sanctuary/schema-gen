@@ -1,7 +1,6 @@
 import { mkdir } from 'fs/promises';
 import { basename, dirname, join } from 'path';
-
-export type WriteMode = 'separate' | 'inline';
+import type { WriteModeType } from '@types';
 
 /**
  * Result of a file write operation
@@ -17,9 +16,9 @@ export interface WriteResult {
 export class FileWriter {
   private readonly outputDir: string;
   private readonly suffix: string;
-  private readonly mode: WriteMode;
+  private readonly mode: WriteModeType;
 
-  constructor(config: { outputDir: string; suffix?: string; mode?: WriteMode }) {
+  constructor(config: { outputDir: string; suffix?: string; mode?: WriteModeType }) {
     this.outputDir = config.outputDir;
     this.suffix = config.suffix ?? '.schema.ts';
     this.mode = config.mode ?? 'separate';

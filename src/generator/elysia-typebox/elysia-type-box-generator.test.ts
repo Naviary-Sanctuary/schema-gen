@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ElysiaTypeBoxGenerator } from './elysia-type-box-generator';
+import { ElysiaTypeBoxGenerator, TypeBoxGenerator } from './elysia-type-box-generator';
 import type { ParsedClass } from '@types';
 
 describe('ElysiaTypeBoxGenerator Test', () => {
@@ -523,6 +523,16 @@ export const userSchema = t.Object({
   age: t.Optional(t.Number()),
   tags: t.Array(t.String()) });`);
       });
+    });
+  });
+});
+
+describe('TypeBoxGenerator Test', () => {
+  const generator = new TypeBoxGenerator();
+
+  describe('getImports Test', () => {
+    test('should return typebox import statement', () => {
+      expect(generator.getImports()).toEqual(['import { Type as t } from "@sinclair/typebox"']);
     });
   });
 });

@@ -34,7 +34,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@types": ["./src/types"]
+      "@types": ["./src/types"],
+      "@libs/*": ["./src/libs/*"]
     }
   },
   "include": ["src/**/*"],

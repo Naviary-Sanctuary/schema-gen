@@ -262,3 +262,9 @@ export class ElysiaTypeBoxGenerator implements SchemaGenerator {
     return `t.Literal(${value})`;
   }
 }
+
+export class TypeBoxGenerator extends ElysiaTypeBoxGenerator {
+  override getImports(): string[] {
+    return ['import { Type as t } from "@sinclair/typebox"'];
+  }
+}
