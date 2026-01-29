@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, test, expect } from 'bun:test';
 import { rm } from 'fs/promises';
 import { join } from 'path';
-import { FileWriter } from './file-writer';
+import { FileWriter } from './writer';
 
 const TEST_OUTPUT_DIR = join(process.cwd(), 'test-output');
 
