@@ -1,6 +1,7 @@
 import { mkdir } from 'fs/promises';
-import { basename, dirname, join } from 'path';
+import { dirname } from 'path';
 import type { WriteModeType } from '@types';
+import { PathResolver } from '@libs/path';
 
 /**
  * Result of a file write operation
@@ -14,14 +15,14 @@ export interface WriteResult {
 }
 
 export class FileWriter {
-  private readonly outputDir: string;
-  private readonly suffix: string;
+  private readonly pattern: string;
   private readonly mode: WriteModeType;
+  private readonly pathResolver: PathResolver;
 
-  constructor(config: { outputDir: string; suffix?: string; mode?: WriteModeType }) {
-    this.outputDir = config.outputDir;
-    this.suffix = config.suffix ?? '.schema.ts';
+  constructor(config: { pattern: string; mode?: WriteModeType }) {
+    this.pattern = config.pattern;
     this.mode = config.mode ?? 'separate';
+    this.pathResolver = new PathResolver();
   }
 
   /**
@@ -62,7 +63,7 @@ export class FileWriter {
    * @returns The result of the write operation
    */
   private async writeSeparate(code: string, sourcePath: string): Promise<WriteResult> {
-    const outputFilePath = this.generateOutputFilePath(sourcePath);
+    const outputFilePath = this.pathResolver.resolve(sourcePath, this.pattern);
     await this.ensureDirectoryExists(dirname(outputFilePath));
 
     const fileExists = await Bun.file(outputFilePath).exists();
@@ -73,18 +74,6 @@ export class FileWriter {
       filePath: outputFilePath,
       created: !fileExists,
     };
-  }
-
-  /**
-   * Generate output file path from source path
-   *
-   * @param sourcePath - Original source file path
-   * @returns The output file path
-   */
-  private generateOutputFilePath(sourcePath: string): string {
-    const fullBasename = basename(sourcePath);
-    const baseNameWithoutExtension = fullBasename.replace(/\.ts$/, '');
-    return join(this.outputDir, `${baseNameWithoutExtension}${this.suffix}`);
   }
 
   /**

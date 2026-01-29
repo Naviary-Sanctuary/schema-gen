@@ -16,7 +16,7 @@ describe('FileWriter Test', () => {
 
   describe('constructor test', () => {
     test('should create instance', () => {
-      const writer = new FileWriter({ outputDir: 'schemas', suffix: '.schema.ts', mode: 'separate' });
+      const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts'), mode: 'separate' });
 
       expect(writer).toBeDefined();
       expect(writer).toBeInstanceOf(FileWriter);
@@ -26,7 +26,7 @@ describe('FileWriter Test', () => {
   describe('write test', () => {
     describe('separate mode', () => {
       test('should write schema file to output directory', async () => {
-        const writer = new FileWriter({ outputDir: TEST_OUTPUT_DIR });
+        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
         const code = `export const userSchema = test.Object({})`;
 
         const results = await writer.write([{ code, sourcePath: 'test.ts' }]);
@@ -43,7 +43,7 @@ describe('FileWriter Test', () => {
       });
 
       test('should write multiple schema files at once', async () => {
-        const writer = new FileWriter({ outputDir: TEST_OUTPUT_DIR });
+        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
 
         const files = [
           { code: 'export const userSchema = t.Object({})', sourcePath: 'user.ts' },
@@ -70,16 +70,16 @@ describe('FileWriter Test', () => {
       });
 
       test('should handle empty array', async () => {
-        const writer = new FileWriter({ outputDir: TEST_OUTPUT_DIR });
+        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
 
         const results = await writer.write([]);
 
         expect(results).toHaveLength(0);
       });
 
-      test('should create  output if ti does not exist', async () => {
+      test('should create output directory if it does not exist', async () => {
         const nestedDir = join(TEST_OUTPUT_DIR, 'nested', 'deep', 'schemas');
-        const writer = new FileWriter({ outputDir: nestedDir });
+        const writer = new FileWriter({ pattern: join(nestedDir, '{filename}.schema.ts') });
         const code = 'export const test = {};';
 
         const results = await writer.write([{ code, sourcePath: 'test.ts' }]);
@@ -93,25 +93,8 @@ describe('FileWriter Test', () => {
         expect.assertions(3);
       });
 
-      test('should use custom suffix when provided', async () => {
-        const writer = new FileWriter({
-          outputDir: TEST_OUTPUT_DIR,
-          suffix: '.validation.ts',
-        });
-        const code = 'export const userValidation = {};';
-
-        const results = await writer.write([{ code, sourcePath: 'src/user.ts' }]);
-
-        expect(results).toHaveLength(1);
-        if (results[0]) {
-          expect(results[0].filePath).toBe(join(TEST_OUTPUT_DIR, 'user.validation.ts'));
-          expect(await Bun.file(results[0].filePath).exists()).toBe(true);
-        }
-        expect.assertions(3);
-      });
-
       test('should overwrite existing file', async () => {
-        const writer = new FileWriter({ outputDir: TEST_OUTPUT_DIR });
+        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
         const firstCode = 'export const v1 = {};';
         const secondCode = 'export const v2 = {};';
 
@@ -130,31 +113,107 @@ describe('FileWriter Test', () => {
         expect.assertions(5);
       });
 
-      test('should handle different file path formats', async () => {
-        const writer = new FileWriter({ outputDir: TEST_OUTPUT_DIR });
+      test.each([
+        { sourcePath: 'user.ts', description: 'simple filename' },
+        { sourcePath: './user.ts', description: 'current directory prefix' },
+        { sourcePath: 'src/user.ts', description: 'nested path' },
+        { sourcePath: './src/user.ts', description: 'current directory with nested' },
+        { sourcePath: 'src/dto/user.ts', description: 'deeply nested path' },
+        { sourcePath: 'src/models/domain/user.ts', description: 'very deeply nested path' },
+        { sourcePath: 'UserDTO.ts', description: 'PascalCase filename' },
+        { sourcePath: 'user_dto.ts', description: 'underscore filename' },
+        { sourcePath: 'user-dto.ts', description: 'hyphen filename' },
+      ])('should handle different file path formats: $description', async ({ sourcePath }) => {
+        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
         const code = 'export const test = {};';
 
-        const testCases = [
-          'user.ts',
-          './user.ts',
-          'src/user.ts',
-          './src/user.ts',
+        const results = await writer.write([{ code, sourcePath }]);
 
-          'src/dto/user.ts',
-          'src/models/domain/user.ts',
-
-          'UserDTO.ts',
-          'user_dto.ts',
-          'user-dto.ts',
-        ];
-
-        const files = testCases.map((sourcePath) => ({ code, sourcePath }));
-        const results = await writer.write(files);
-
-        expect(results).toHaveLength(testCases.length);
-        for (const result of results) {
-          expect(await Bun.file(result.filePath).exists()).toBe(true);
+        expect(results).toHaveLength(1);
+        if (results[0]) {
+          expect(await Bun.file(results[0].filePath).exists()).toBe(true);
         }
+        expect.assertions(2);
+      });
+
+      test.each([
+        {
+          description: 'user model',
+          sourcePath: 'src/models/user.ts',
+          expected: join(TEST_OUTPUT_DIR, 'route', 'user', 'schema.ts'),
+        },
+        {
+          description: 'product model',
+          sourcePath: 'src/models/product.ts',
+          expected: join(TEST_OUTPUT_DIR, 'route', 'product', 'schema.ts'),
+        },
+      ])('should handle models to route schemas pattern: $description', async ({ sourcePath, expected }) => {
+        const writer = new FileWriter({
+          pattern: join(TEST_OUTPUT_DIR, 'route', '{filename}', 'schema.ts'),
+        });
+
+        const results = await writer.write([{ code: 'test', sourcePath }]);
+
+        if (results[0]) {
+          expect(results[0].filePath).toBe(expected);
+          expect(await Bun.file(results[0].filePath).exists()).toBe(true);
+        }
+        expect.assertions(2);
+      });
+
+      test.each([
+        {
+          description: 'user dto',
+          sourcePath: 'src/dto/user.dto.ts',
+          expected: join(TEST_OUTPUT_DIR, 'api', 'schemas', 'user.dto.schema.ts'),
+        },
+        {
+          description: 'product dto',
+          sourcePath: 'src/dto/product.dto.ts',
+          expected: join(TEST_OUTPUT_DIR, 'api', 'schemas', 'product.dto.schema.ts'),
+        },
+      ])('should handle dto to api schemas pattern: $description', async ({ sourcePath, expected }) => {
+        const writer = new FileWriter({
+          pattern: join(TEST_OUTPUT_DIR, 'api', 'schemas', '{filename}.schema.ts'),
+        });
+
+        const results = await writer.write([{ code: 'test', sourcePath }]);
+
+        if (results[0]) {
+          expect(results[0].filePath).toBe(expected);
+          expect(await Bun.file(results[0].filePath).exists()).toBe(true);
+        }
+        expect.assertions(2);
+      });
+
+      test.each([
+        {
+          description: 'user model',
+          sourcePath: 'src/models/user.ts',
+          expected: join(TEST_OUTPUT_DIR, 'schemas', 'user.schema.ts'),
+        },
+        {
+          description: 'product dto',
+          sourcePath: 'src/dto/product.dto.ts',
+          expected: join(TEST_OUTPUT_DIR, 'schemas', 'product.dto.schema.ts'),
+        },
+        {
+          description: 'order api',
+          sourcePath: 'src/api/order.ts',
+          expected: join(TEST_OUTPUT_DIR, 'schemas', 'order.schema.ts'),
+        },
+      ])('should handle flat output directory pattern: $description', async ({ sourcePath, expected }) => {
+        const writer = new FileWriter({
+          pattern: join(TEST_OUTPUT_DIR, 'schemas', '{filename}.schema.ts'),
+        });
+
+        const results = await writer.write([{ code: 'test', sourcePath }]);
+
+        if (results[0]) {
+          expect(results[0].filePath).toBe(expected);
+          expect(await Bun.file(results[0].filePath).exists()).toBe(true);
+        }
+        expect.assertions(2);
       });
     });
   });
