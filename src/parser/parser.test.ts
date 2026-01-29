@@ -125,6 +125,8 @@ describe('Parser Test', () => {
             expect(zipCodeProperty).toBeDefined();
             expect(zipCodeProperty?.type).toEqual({ kind: 'primitive', type: 'number' });
           }
+
+          expect.assertions(8);
         });
       });
 
