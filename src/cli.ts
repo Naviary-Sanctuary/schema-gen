@@ -6,41 +6,6 @@ import { ConfigNotFoundError, ConfigParseError, ConfigValidationError } from './
 
 const cli = cac('schema-gen');
 
-// #region Generate Command
-cli
-  .command('[config]', 'Generate schemas from classes')
-  .option('-c, --config <path>', 'Path to the config file', {
-    default: 'schema-gen.config.json',
-  })
-  .action(async (configPath: string) => {
-    try {
-      const loader = new ConfigLoader(configPath);
-      const config = await loader.load();
-
-      console.log(pc.cyan('-> Generating schemas...\n'));
-
-      const gen = new SchemaGen(config);
-      const result = await gen.run();
-
-      console.log(pc.green('\n✓ Success!'));
-      console.log(pc.cyan(`  Files processed:   ${result.filesProcessed}`));
-      console.log(pc.cyan(`  Schemas generated: ${result.schemasGenerated}`));
-      console.log(pc.cyan(`  Files created:     ${result.filesCreated}`));
-      console.log(pc.cyan(`  Files overwritten: ${result.filesOverwritten}`));
-    } catch (err) {
-      handleError(err);
-      process.exit(1);
-    }
-  });
-// #endregion
-
-// #region Help and Version
-cli.help();
-cli.version('0.1.0');
-// #endregion
-
-cli.parse();
-
 // #region Init Command
 cli.command('init', 'Create a default config file').action(async () => {
   try {
@@ -76,12 +41,47 @@ cli.command('init', 'Create a default config file').action(async () => {
 });
 // #endregion
 
+// #region Generate Command
+cli
+  .command('generate [config]', 'Generate schemas from classes')
+  .option('-c, --config <path>', 'Path to the config file', {
+    default: 'schema-gen.config.json',
+  })
+  .action(async (configPath: string) => {
+    try {
+      const loader = new ConfigLoader(configPath);
+      const config = await loader.load();
+
+      console.log(pc.cyan('-> Generating schemas...\n'));
+
+      const gen = new SchemaGen(config);
+      const result = await gen.run();
+
+      console.log(pc.green('\n✓ Success!'));
+      console.log(pc.cyan(`  Files processed:   ${result.filesProcessed}`));
+      console.log(pc.cyan(`  Schemas generated: ${result.schemasGenerated}`));
+      console.log(pc.cyan(`  Files created:     ${result.filesCreated}`));
+      console.log(pc.cyan(`  Files overwritten: ${result.filesOverwritten}`));
+    } catch (err) {
+      handleError(err);
+      process.exit(1);
+    }
+  });
+// #endregion
+
+// #region Help and Version
+cli.help();
+cli.version('0.1.0');
+// #endregion
+
+cli.parse();
+
 // #region Helper Functions
 function handleError(error: unknown): void {
   if (error instanceof ConfigNotFoundError) {
     console.error(pc.red('✗ Config file not found\n'));
     console.error(pc.gray('  Create a config file by running:'));
-    console.error(pc.gray('  $ elysia-schema-gen init\n'));
+    console.error(pc.gray('  $ schema-gen init\n'));
   } else if (error instanceof ConfigParseError) {
     console.error(pc.red('✗ Invalid JSON in config file\n'));
     console.error(pc.gray(`  ${error.message}\n`));

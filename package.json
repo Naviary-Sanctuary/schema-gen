@@ -42,7 +42,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "bun build ./src/cli.ts --outdir ./dist --target bun && bun run build:types",
+    "build": "bun build ./src/cli.ts --outdir ./dist --target bun && bun run build:lib && bun run build:types",
+    "build:lib": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
     "build:types": "tsc --emitDeclarationOnly --outDir dist",
     "dev": "bun run ./src/cli.ts",
     "test": "bun test",

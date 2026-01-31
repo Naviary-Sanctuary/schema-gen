@@ -2,11 +2,13 @@ import type { ParsedClass, Property, PropertyType } from '@types';
 import type { SchemaGenerator } from '../schema-generator';
 
 /**
- * Elysia TypeBox schema generator
+ * TypeBox schema generator
  *
- * Generates Elysia's TypeBox schema code from parsed TypeScript classes.
- * Uses Elysia's built-in `t` from 'elysia' package instead of standalone TypeBox.
+ * Generates s TypeBox schema code from parsed TypeScript classes.
+ * If you use elysia, Uses s built-in `t` from 'elysia' package instead of standalone TypeBox.
+ * Uses typebox's `Type` from '@sinclair/typebox' package instead of standalone TypeBox.
  *
+ * @see https://sinclairzx81.github.io/typebox/
  * @see https://elysiajs.com/essential/validation.html
  */
 export class TypeBoxGenerator implements SchemaGenerator {
@@ -24,19 +26,19 @@ export class TypeBoxGenerator implements SchemaGenerator {
   }
 
   /**
-   * Get required imports for Elysia TypeBox
+   * Get required imports for TypeBox
    *
-   * @returns Import statement for Elysia's `t` utility
+   * @returns Import statement for s `t` utility
    */
   getImports(): string[] {
     return this.type === 'typebox' ? ['import { Type as t } from "@sinclair/typebox"'] : ['import { t } from "elysia"'];
   }
 
   /**
-   * Generate Elysia TypeBox schema code from a parsed class
+   * Generate TypeBox schema code from a parsed class
    *
    * @param parsedClass - The parsed class information
-   * @returns Generated Elysia schema code as a string
+   * @returns Generated schema code as a string
    *
    * @example
    * ```typescript
@@ -119,13 +121,13 @@ export class TypeBoxGenerator implements SchemaGenerator {
   }
 
   /**
-   * Generate Elysia TypeBox type code from PropertyType
+   * Generate TypeBox type code from PropertyType
    *
-   * Core mapping logic that converts PropertyType into Elysia's `t.*` calls.
+   * Core mapping logic that converts PropertyType into s `t.*` calls.
    * Uses discriminated union pattern for type-safe handling.
    *
    * @param type - Property type information
-   * @returns Elysia TypeBox code string
+   * @returns TypeBox code string
    */
   private generateType(type: PropertyType): string {
     switch (type.kind) {
@@ -148,10 +150,10 @@ export class TypeBoxGenerator implements SchemaGenerator {
   /**
    * Generate primitive type code
    *
-   * Maps TypeScript primitive types to Elysia's TypeBox equivalents.
+   * Maps TypeScript primitive types to s TypeBox equivalents.
    *
    * @param type - Primitive type name
-   * @returns Elysia TypeBox primitive type call
+   * @returns TypeBox primitive type call
    *
    * @example
    * ```typescript
@@ -183,7 +185,7 @@ export class TypeBoxGenerator implements SchemaGenerator {
    * Creates nested t.Object() with recursively generated properties.
    *
    * @param properties - Object's property definitions
-   * @returns Elysia TypeBox object type code
+   * @returns TypeBox object type code
    *
    * @example
    * ```typescript
@@ -212,7 +214,7 @@ export class TypeBoxGenerator implements SchemaGenerator {
    * Falls back to t.Union() for mixed or non-literal types.
    *
    * @param types - Array of union member types
-   * @returns Elysia TypeBox union or union enum code
+   * @returns TypeBox union or union enum code
    *
    * @example
    * ```typescript
@@ -252,7 +254,7 @@ export class TypeBoxGenerator implements SchemaGenerator {
    * Creates t.Literal() with the specific value.
    *
    * @param value - Literal value (string, number, or boolean)
-   * @returns Elysia TypeBox literal type code
+   * @returns TypeBox literal type code
    *
    * @example
    * ```typescript
