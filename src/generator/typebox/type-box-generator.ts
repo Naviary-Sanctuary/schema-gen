@@ -9,12 +9,18 @@ import type { SchemaGenerator } from '../schema-generator';
  *
  * @see https://elysiajs.com/essential/validation.html
  */
-export class ElysiaTypeBoxGenerator implements SchemaGenerator {
+export class TypeBoxGenerator implements SchemaGenerator {
+  private readonly type: 'typebox' | 'elysia';
+
+  constructor(type: 'typebox' | 'elysia') {
+    this.type = type;
+  }
+
   /**
    * Check if this generator supports the given type
    */
   supports(type: string): boolean {
-    return type === 'typebox';
+    return type === 'typebox' || type === 'elysia';
   }
 
   /**
@@ -23,7 +29,7 @@ export class ElysiaTypeBoxGenerator implements SchemaGenerator {
    * @returns Import statement for Elysia's `t` utility
    */
   getImports(): string[] {
-    return ['import { t } from "elysia"'];
+    return this.type === 'typebox' ? ['import { Type as t } from "@sinclair/typebox"'] : ['import { t } from "elysia"'];
   }
 
   /**
@@ -72,7 +78,7 @@ export class ElysiaTypeBoxGenerator implements SchemaGenerator {
    * generateSchemaName('UserResponse') // 'userResponseSchema'
    * ```
    */
-  private generateSchemaName(className: string): string {
+  generateSchemaName(className: string): string {
     const camelCase = className.charAt(0).toLowerCase() + className.slice(1);
     return `${camelCase}Schema`;
   }
@@ -260,11 +266,5 @@ export class ElysiaTypeBoxGenerator implements SchemaGenerator {
       return `t.Literal('${value}')`;
     }
     return `t.Literal(${value})`;
-  }
-}
-
-export class TypeBoxGenerator extends ElysiaTypeBoxGenerator {
-  override getImports(): string[] {
-    return ['import { Type as t } from "@sinclair/typebox"'];
   }
 }

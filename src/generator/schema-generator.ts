@@ -49,4 +49,15 @@ export interface SchemaGenerator {
    * ```
    */
   getImports(): string[];
+
+  /**
+   * Generate schema variable name from class name
+   *
+   * @example
+   * ```typescript
+   * generateSchemaName('User')         // 'userSchema'
+   * generateSchemaName('UserResponse') // 'userResponseSchema'
+   * ```
+   */
+  generateSchemaName(className: string): string;
 }

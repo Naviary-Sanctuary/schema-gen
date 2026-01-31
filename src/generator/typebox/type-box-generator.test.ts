@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { ElysiaTypeBoxGenerator, TypeBoxGenerator } from './elysia-type-box-generator';
 import type { ParsedClass } from '@types';
+import { TypeBoxGenerator } from './type-box-generator';
 
-describe('ElysiaTypeBoxGenerator Test', () => {
-  const generator = new ElysiaTypeBoxGenerator();
+describe('TypeBoxGenerator Test', () => {
+  const generator = new TypeBoxGenerator('elysia');
 
   describe('supports Test', () => {
     test('should support typebox', () => {
@@ -528,7 +528,7 @@ export const userSchema = t.Object({
 });
 
 describe('TypeBoxGenerator Test', () => {
-  const generator = new TypeBoxGenerator();
+  const generator = new TypeBoxGenerator('typebox');
 
   describe('getImports Test', () => {
     test('should return typebox import statement', () => {
