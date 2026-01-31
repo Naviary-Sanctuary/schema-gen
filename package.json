@@ -1,38 +1,67 @@
 {
-  "name": "elysia-schema-gen",
+  "name": "schema-gen",
   "version": "0.0.1",
-  "description": "CLI tool to automatically generate Elysia schemas from class definitions",
+  "description": "Automatically generate schemas from TypeScript class definitions",
   "type": "module",
   "author": "Naviary Sanctuary",
   "license": "MIT",
   "keywords": [
-    "elysia",
     "schema",
     "typebox",
-    "codegne",
+    "elysia",
+    "codegen",
     "cli",
-    "bun"
+    "bun",
+    "typescript",
+    "generator"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Naviary-Sanctuary/elysia-schema-gen.git"
+    "url": "https://github.com/Naviary-Sanctuary/schema-gen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Naviary-Sanctuary/schema-gen/issues"
+  },
+  "homepage": "https://github.com/Naviary-Sanctuary/schema-gen#readme",
+  "engines": {
+    "bun": ">=1.0.0"
   },
   "bin": {
-    "elyisa-schema-gen": "./dist/cli.js"
+    "schema-gen": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "bun build ./src/clit.ts --outdir ./dist --target node",
+    "build": "bun build ./src/cli.ts --outdir ./dist --target bun && bun run build:types",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist",
     "dev": "bun run ./src/cli.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
     "typecheck": "tsc --noEmit",
+    "lint": "oxlint src",
+    "format": "oxfmt src",
+    "format:check": "oxfmt --check src",
+    "prepublishOnly": "bun run build && bun run test && bun run typecheck",
     "prepare": "husky"
   },
   "dependencies": {
     "cac": "^6.7.14",
     "es-toolkit": "^1.44.0",
+    "picocolors": "^1.1.1",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
-    "@types/bun": "1.3.7",
+    "@types/bun": "1.3.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.27.0",

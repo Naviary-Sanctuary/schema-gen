@@ -2,7 +2,7 @@
   "plugins": ["import", "typescript", "oxc", "unicorn"],
   "rules": {
     "import/no-duplicates": "warn",
-    "no-console": "warn",
+    "no-console": "off",
     "no-unused-vars": [
       "warn",
       {
