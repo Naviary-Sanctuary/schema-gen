@@ -546,11 +546,11 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('metadata: t.Record(t.String(), t.Any())');
     });
-  
+
     test('should generate Record<string, string> type', () => {
       const parsedClass: ParsedClass = {
         name: 'EventData',
@@ -570,11 +570,11 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('tags: t.Record(t.String(), t.String())');
     });
-  
+
     test('should generate Record<number, number> type', () => {
       const parsedClass: ParsedClass = {
         name: 'EventData',
@@ -594,11 +594,11 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('scores: t.Record(t.Number(), t.Number())');
     });
-  
+
     test('should generate nested Record type', () => {
       const parsedClass: ParsedClass = {
         name: 'NestedRecord',
@@ -621,12 +621,12 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('data: t.Record(t.String(), t.Array(t.Number()))');
     });
   });
-  
+
   describe('intersection types', () => {
     test('should generate simple intersection type', () => {
       const parsedClass: ParsedClass = {
@@ -671,12 +671,12 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('t.Intersect([');
       expect(result).toContain('t.Object');
     });
-  
+
     test('should generate intersection with primitive types', () => {
       const parsedClass: ParsedClass = {
         name: 'Test',
@@ -709,11 +709,11 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('value: t.Intersect([t.String(), t.Object');
     });
-  
+
     test('should handle optional intersection type', () => {
       const parsedClass: ParsedClass = {
         name: 'Test',
@@ -757,12 +757,12 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('optional: t.Optional(t.Intersect([');
     });
   });
-  
+
   describe('complex combinations', () => {
     test('should handle Record with intersection value type', () => {
       const parsedClass: ParsedClass = {
@@ -811,11 +811,11 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('data: t.Record(t.String(), t.Intersect([');
     });
-  
+
     test('should handle intersection with Record type', () => {
       const parsedClass: ParsedClass = {
         name: 'Complex',
@@ -852,10 +852,30 @@ export const userSchema = t.Object({
           },
         ],
       };
-  
+
       const result = generator.generate(parsedClass);
       expect(result).toContain('mixed: t.Intersect([t.Record(t.String(), t.Any()), t.Object');
     });
+  });
+
+  test('should generate never type', () => {
+    const parsedClass: ParsedClass = {
+      name: 'Test',
+      filePath: 'test.ts',
+      isExported: true,
+      properties: [
+        {
+          name: 'impossible',
+          type: { kind: 'never' },
+          isOptional: false,
+          isReadonly: false,
+          hasDefaultValue: false,
+        },
+      ],
+    };
+
+    const result = generator.generate(parsedClass);
+    expect(result).toContain('impossible: t.Never()');
   });
 });
 

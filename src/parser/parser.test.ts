@@ -251,5 +251,18 @@ describe('Parser', () => {
         expect.assertions(5);
       });
     });
+
+    test('should parse never type', () => {
+      const filePath = path.join(FIXTURES_DIR, 'never-types.ts');
+      const result = parser.parseFile(filePath);
+
+      expect(result).toHaveLength(1);
+      const parsed = result[0];
+      if (parsed) {
+        const impossible = parsed.properties.find((p) => p.name === 'impossible');
+        expect(impossible?.type).toEqual({ kind: 'never' });
+      }
+      expect.assertions(2);
+    });
   });
 });

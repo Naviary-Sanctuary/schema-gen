@@ -141,11 +141,12 @@ export class TypeBoxGenerator implements SchemaGenerator {
         return this.generateUnionType(type.types);
       case 'literal':
         return this.generateLiteralType(type.value);
-        case 'record':
-          return this.generateRecordType(type.keyType, type.valueType);
-        
-        case 'intersection':
-          return this.generateIntersectionType(type.types);
+      case 'record':
+        return this.generateRecordType(type.keyType, type.valueType);
+      case 'intersection':
+        return this.generateIntersectionType(type.types);
+      case 'never':
+        return 't.Never()';
       default:
         const _exhaustive: never = type;
         throw new Error(`Unsupported type: ${JSON.stringify(_exhaustive)}`);

@@ -118,6 +118,7 @@ export class Parser {
    * @returns Parsed property type
    */
   private parsePropertyType(type: Type): PropertyType {
+    // #region Check Alias type
     const aliasSymbol = type.getAliasSymbol();
     if (aliasSymbol) {
       const aliasName = aliasSymbol.getName();
@@ -141,6 +142,13 @@ export class Parser {
         return this.parsePropertyType(wrappedType);
       }
     }
+    // #endregion
+
+    // #region Check Never type
+    if (type.isNever()) {
+      return { kind: 'never' };
+    }
+    // #endregion
 
     // #region Check Primitive types
     if (type.isAny()) {
