@@ -104,9 +104,7 @@ export class Parser {
     let propertyType = this.parsePropertyType(property.getType());
 
     if (isOptional && propertyType.kind === 'union') {
-      const filteredTypes = propertyType.types.filter(
-        (t) => !(t.kind === 'primitive' && (t.type === 'undefined' || t.type === 'null')),
-      );
+      const filteredTypes = propertyType.types.filter((t) => !(t.kind === 'primitive' && t.type === 'undefined'));
 
       if (filteredTypes.length === 1) {
         propertyType = filteredTypes[0]!;
