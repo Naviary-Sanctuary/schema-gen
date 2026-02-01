@@ -264,5 +264,31 @@ describe('Parser', () => {
       }
       expect.assertions(2);
     });
+
+    test('should remove undefined from optional property unions', () => {
+      const filePath = path.join(FIXTURES_DIR, 'optional-properties.ts');
+      const result = parser.parseFile(filePath);
+
+      expect(result).toHaveLength(1);
+      const parsed = result[0];
+      if (parsed) {
+        const fruit = parsed.properties.find((p) => p.name === 'fruit');
+        expect(fruit?.isOptional).toBe(true);
+        expect(fruit?.type.kind).toBe('union');
+        if (fruit?.type.kind === 'union') {
+          const types = fruit.type.types;
+          expect(types).toHaveLength(3);
+          expect(types).toContainEqual({ kind: 'literal', value: 'apple' });
+          expect(types).toContainEqual({ kind: 'literal', value: 'banana' });
+          expect(types).toContainEqual({ kind: 'literal', value: 'cherry' });
+          expect(types.some((t) => t.kind === 'primitive' && t.type === 'undefined')).toBe(false);
+        }
+
+        const description = parsed.properties.find((p) => p.name === 'description');
+        expect(description?.isOptional).toBe(true);
+        expect(description?.type).toEqual({ kind: 'primitive', type: 'string' });
+      }
+      expect.assertions(10);
+    });
   });
 });
