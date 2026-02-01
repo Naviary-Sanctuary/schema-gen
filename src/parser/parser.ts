@@ -120,13 +120,24 @@ export class Parser {
   private parsePropertyType(type: Type): PropertyType {
     const aliasSymbol = type.getAliasSymbol();
     if (aliasSymbol) {
-      const compilerSymbol = aliasSymbol.compilerSymbol as any;
+      const aliasName = aliasSymbol.getName();
 
+      if (aliasName === 'Record') {
+        const typeArgs = type.getAliasTypeArguments();
+        if (typeArgs.length === 2) {
+          return {
+            kind: 'record',
+            keyType: this.parsePropertyType(typeArgs[0]!),
+            valueType: this.parsePropertyType(typeArgs[1]!),
+          };
+        }
+      }
+
+      const compilerSymbol = aliasSymbol.compilerSymbol as any;
       if (compilerSymbol.links?.declaredType) {
         const declaredType = compilerSymbol.links.declaredType;
         const context = (type as any)._context;
         const wrappedType = context.compilerFactory.getType(declaredType);
-
         return this.parsePropertyType(wrappedType);
       }
     }
@@ -166,6 +177,16 @@ export class Parser {
     }
     // #endregion
 
+    // #region Check Intersection type
+    if (type.isIntersection()) {
+      const intersectionTypes = type.getIntersectionTypes();
+      return {
+        kind: 'intersection',
+        types: intersectionTypes.map((t) => this.parsePropertyType(t)),
+      };
+    }
+    // #endregion
+
     // #region Check Union type
     if (type.isUnion()) {
       const unionTypes = type.getUnionTypes();
@@ -187,7 +208,27 @@ export class Parser {
 
     // #region Check Object type (including type literals and interfaces)
     if (type.isObject()) {
+      const stringIndexType = type.getStringIndexType();
+      const numberIndexType = type.getNumberIndexType();
+
       const properties = type.getProperties();
+
+      if (stringIndexType && properties.length === 0) {
+        return {
+          kind: 'record',
+          keyType: { kind: 'primitive', type: 'string' },
+          valueType: this.parsePropertyType(stringIndexType),
+        };
+      }
+
+      if (numberIndexType && properties.length === 0) {
+        return {
+          kind: 'record',
+          keyType: { kind: 'primitive', type: 'number' },
+          valueType: this.parsePropertyType(numberIndexType),
+        };
+      }
+
       return {
         kind: 'object',
         properties: properties.map((symbol) => {

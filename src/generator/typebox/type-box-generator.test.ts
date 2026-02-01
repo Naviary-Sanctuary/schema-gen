@@ -525,6 +525,338 @@ export const userSchema = t.Object({
       });
     });
   });
+
+  describe('record types', () => {
+    test('should generate Record<string, any> type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'EventData',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'metadata',
+            type: {
+              kind: 'record',
+              keyType: { kind: 'primitive', type: 'string' },
+              valueType: { kind: 'primitive', type: 'any' },
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('metadata: t.Record(t.String(), t.Any())');
+    });
+  
+    test('should generate Record<string, string> type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'EventData',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'tags',
+            type: {
+              kind: 'record',
+              keyType: { kind: 'primitive', type: 'string' },
+              valueType: { kind: 'primitive', type: 'string' },
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('tags: t.Record(t.String(), t.String())');
+    });
+  
+    test('should generate Record<number, number> type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'EventData',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'scores',
+            type: {
+              kind: 'record',
+              keyType: { kind: 'primitive', type: 'number' },
+              valueType: { kind: 'primitive', type: 'number' },
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('scores: t.Record(t.Number(), t.Number())');
+    });
+  
+    test('should generate nested Record type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'NestedRecord',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'data',
+            type: {
+              kind: 'record',
+              keyType: { kind: 'primitive', type: 'string' },
+              valueType: {
+                kind: 'array',
+                elementType: { kind: 'primitive', type: 'number' },
+              },
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('data: t.Record(t.String(), t.Array(t.Number()))');
+    });
+  });
+  
+  describe('intersection types', () => {
+    test('should generate simple intersection type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'Test',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'combined',
+            type: {
+              kind: 'intersection',
+              types: [
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'a',
+                      type: { kind: 'primitive', type: 'string' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'b',
+                      type: { kind: 'primitive', type: 'number' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+              ],
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('t.Intersect([');
+      expect(result).toContain('t.Object');
+    });
+  
+    test('should generate intersection with primitive types', () => {
+      const parsedClass: ParsedClass = {
+        name: 'Test',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'value',
+            type: {
+              kind: 'intersection',
+              types: [
+                { kind: 'primitive', type: 'string' },
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'length',
+                      type: { kind: 'primitive', type: 'number' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+              ],
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('value: t.Intersect([t.String(), t.Object');
+    });
+  
+    test('should handle optional intersection type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'Test',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'optional',
+            type: {
+              kind: 'intersection',
+              types: [
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'x',
+                      type: { kind: 'primitive', type: 'number' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'y',
+                      type: { kind: 'primitive', type: 'number' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+              ],
+            },
+            isOptional: true,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('optional: t.Optional(t.Intersect([');
+    });
+  });
+  
+  describe('complex combinations', () => {
+    test('should handle Record with intersection value type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'Complex',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'data',
+            type: {
+              kind: 'record',
+              keyType: { kind: 'primitive', type: 'string' },
+              valueType: {
+                kind: 'intersection',
+                types: [
+                  {
+                    kind: 'object',
+                    properties: [
+                      {
+                        name: 'id',
+                        type: { kind: 'primitive', type: 'string' },
+                        isOptional: false,
+                        isReadonly: false,
+                        hasDefaultValue: false,
+                      },
+                    ],
+                  },
+                  {
+                    kind: 'object',
+                    properties: [
+                      {
+                        name: 'timestamp',
+                        type: { kind: 'primitive', type: 'Date' },
+                        isOptional: false,
+                        isReadonly: false,
+                        hasDefaultValue: false,
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('data: t.Record(t.String(), t.Intersect([');
+    });
+  
+    test('should handle intersection with Record type', () => {
+      const parsedClass: ParsedClass = {
+        name: 'Complex',
+        filePath: 'test.ts',
+        isExported: true,
+        properties: [
+          {
+            name: 'mixed',
+            type: {
+              kind: 'intersection',
+              types: [
+                {
+                  kind: 'record',
+                  keyType: { kind: 'primitive', type: 'string' },
+                  valueType: { kind: 'primitive', type: 'any' },
+                },
+                {
+                  kind: 'object',
+                  properties: [
+                    {
+                      name: 'special',
+                      type: { kind: 'primitive', type: 'string' },
+                      isOptional: false,
+                      isReadonly: false,
+                      hasDefaultValue: false,
+                    },
+                  ],
+                },
+              ],
+            },
+            isOptional: false,
+            isReadonly: false,
+            hasDefaultValue: false,
+          },
+        ],
+      };
+  
+      const result = generator.generate(parsedClass);
+      expect(result).toContain('mixed: t.Intersect([t.Record(t.String(), t.Any()), t.Object');
+    });
+  });
 });
 
 describe('TypeBoxGenerator Test', () => {

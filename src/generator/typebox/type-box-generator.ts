@@ -141,6 +141,11 @@ export class TypeBoxGenerator implements SchemaGenerator {
         return this.generateUnionType(type.types);
       case 'literal':
         return this.generateLiteralType(type.value);
+        case 'record':
+          return this.generateRecordType(type.keyType, type.valueType);
+        
+        case 'intersection':
+          return this.generateIntersectionType(type.types);
       default:
         const _exhaustive: never = type;
         throw new Error(`Unsupported type: ${JSON.stringify(_exhaustive)}`);
@@ -274,5 +279,16 @@ export class TypeBoxGenerator implements SchemaGenerator {
       return `t.Literal('${value}')`;
     }
     return `t.Literal(${value})`;
+  }
+
+  private generateRecordType(keyType: PropertyType, valueType: PropertyType): string {
+    const keyCode = this.generateType(keyType);
+    const valueCode = this.generateType(valueType);
+    return `t.Record(${keyCode}, ${valueCode})`;
+  }
+
+  private generateIntersectionType(types: PropertyType[]): string {
+    const typeCodes = types.map((t) => this.generateType(t)).join(', ');
+    return `t.Intersect([${typeCodes}])`;
   }
 }

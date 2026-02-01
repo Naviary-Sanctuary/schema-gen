@@ -15,7 +15,7 @@
  * }
  * ```
  */
-export type PropertyType = PrimitiveType | ArrayType | ObjectType | UnionType | LiteralType;
+export type PropertyType = PrimitiveType | ArrayType | ObjectType | UnionType | LiteralType | RecordType | IntersectionType;
 
 /**
  * Primitive types (string, number, boolean, Date)
@@ -163,3 +163,33 @@ export interface UnionType {
   kind: 'union';
   types: PropertyType[];
 }
+
+/**
+ * Record types (index signature)
+ * 
+ *  * @example
+ * ```typescript
+ * metadata: Record<string, any>
+ * → { kind: 'record', keyType: { kind: 'primitive', type: 'string' }, 
+ *     valueType: { kind: 'primitive', type: 'any' } }
+ * ```
+ */
+export interface RecordType {
+  kind: 'record';
+  keyType: PropertyType;
+  valueType: PropertyType;
+}
+
+/**
+ * Intersection types (A & B)
+ * 
+ * @example
+ * ```typescript
+ * type Combined = User & { timestamp: Date }
+ * → { kind: 'intersection', types: [userType, objectType] }
+ * ```
+ */
+export interface IntersectionType {
+  kind: 'intersection';
+  types: PropertyType[];
+} 
