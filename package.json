@@ -1,12 +1,13 @@
 {
   "name": "schema-gen",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Automatically generate schemas from TypeScript class definitions",
   "type": "module",
   "author": "Naviary Sanctuary",
   "license": "MIT",
   "keywords": [
     "schema",
+    "validation",
     "typebox",
     "elysia",
     "codegen",

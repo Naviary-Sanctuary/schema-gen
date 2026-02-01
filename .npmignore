@@ -1,0 +1,37 @@
+# Source files
+src/
+
+# Test files
+tests/
+test-configs/
+test-files/
+test-output/
+*.test.ts
+*.spec.ts
+
+# Development files
+.github/
+.husky/
+tsconfig.json
+
+# Git
+.git/
+.gitignore
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Temporary
+*.tmp
+*.temp
