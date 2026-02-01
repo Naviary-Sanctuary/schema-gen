@@ -99,9 +99,24 @@ export class Parser {
    * @returns Parsed property information
    */
   private parseProperty(property: PropertyDeclaration): Property {
+    // #region Check Optional type
+    const isOptional = property.hasQuestionToken() ?? false;
+    let propertyType = this.parsePropertyType(property.getType());
+
+    if (isOptional && propertyType.kind === 'union') {
+      const filteredTypes = propertyType.types.filter((t) => !(t.kind === 'primitive' && t.type === 'undefined'));
+
+      if (filteredTypes.length === 1) {
+        propertyType = filteredTypes[0]!;
+      } else if (filteredTypes.length > 1) {
+        propertyType = { kind: 'union', types: filteredTypes };
+      }
+    }
+    // #endregion
+
     return {
       name: property.getName(),
-      type: this.parsePropertyType(property.getType()),
+      type: propertyType,
       isOptional: property.hasQuestionToken() ?? false,
       isReadonly: property.isReadonly(),
       hasDefaultValue: property.hasInitializer(),
