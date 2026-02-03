@@ -38,7 +38,7 @@ This is:
 - 📦 Multiple schema libraries: **Elysia** and **TypeBox**
 - 📝 Separate file generation (inline mode coming soon)
 - ⚙️ Flexible configuration via `schema-gen.config.json`
-- 🎯 Built with Bun for speed
+- 🎯 Optimized for Bun, compatible with Node.js
 - 🔧 CLI flags override config for one-off cases
 
 ## Installation
@@ -52,12 +52,18 @@ brew tap Naviary-Sanctuary/schema-gen
 brew install schema-gen
 ```
 
-### Bun
-
-This package requires Bun runtime. It will not work with npm/node.
+### Bun (Recommended)
 
 ```bash
 bun install -g @naviary-sanctuary/schema-gen
+```
+
+### Node.js / npm
+
+This package supports Node.js >= 18.0.0.
+
+```bash
+npm install -g @naviary-sanctuary/schema-gen
 ```
 
 ### Quick Install Script

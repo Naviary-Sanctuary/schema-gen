@@ -3,7 +3,7 @@
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
-    "types": ["@types/bun"],
+    "types": ["@types/bun", "node"],
 
     // Module resolution
     "moduleResolution": "bundler",

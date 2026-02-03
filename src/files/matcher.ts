@@ -1,10 +1,10 @@
-import { Glob } from 'bun';
+import glob from 'fast-glob';
 
 /**
  * File matcher using glob patterns
  *
  * Finds files matching include patterns and excludes files matching exclude patterns.
- * Uses Bun's native Glob API
+ * Uses fast-glob for Node.js compatibility
  *
  * @example
  * ```typescript
@@ -70,14 +70,7 @@ export class FileMatcher {
    * @returns Array of file paths matching the pattern
    */
   private async scanPattern(pattern: string): Promise<string[]> {
-    const glob = new Glob(pattern);
-    const files: string[] = [];
-
-    for await (const file of glob.scan('.')) {
-      files.push(file);
-    }
-
-    return files;
+    return glob(pattern, { dot: true, onlyFiles: true });
   }
 
   /**

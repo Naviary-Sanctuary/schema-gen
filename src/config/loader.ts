@@ -1,4 +1,5 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
+import { readFile, access } from 'node:fs/promises';
 import {
   SUPPORTED_GENERATORS,
   WRITE_MODES,
@@ -29,18 +30,17 @@ export class ConfigLoader {
   }
 
   async load(): Promise<Config> {
-    const file = Bun.file(this.configPath);
     try {
-      if (!(await file.exists())) {
-        throw new ConfigNotFoundError(this.configPath);
-      }
-
-      const content = await file.text();
+      await access(this.configPath);
+      const content = await readFile(this.configPath, 'utf-8');
       const config = JSON.parse(content) as Config;
       this.validate(config);
 
       return config;
-    } catch (err) {
+    } catch (err: any) {
+      if (err.code === 'ENOENT') {
+        throw new ConfigNotFoundError(this.configPath);
+      }
       if (err instanceof SyntaxError) {
         throw new ConfigParseError(this.configPath, err.message);
       }

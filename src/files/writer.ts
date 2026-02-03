@@ -1,4 +1,4 @@
-import { mkdir } from 'fs/promises';
+import { mkdir, writeFile, access } from 'node:fs/promises';
 import { dirname } from 'path';
 import type { VariableValue, WriteModeType } from '@types';
 import { PathResolver } from '@libs/path';
@@ -68,9 +68,11 @@ export class FileWriter {
     const outputFilePath = this.pathResolver.resolve(sourcePath, this.pattern, this.variables);
     await this.ensureDirectoryExists(dirname(outputFilePath));
 
-    const fileExists = await Bun.file(outputFilePath).exists();
+    const fileExists = await access(outputFilePath)
+      .then(() => true)
+      .catch(() => false);
 
-    await Bun.write(outputFilePath, code);
+    await writeFile(outputFilePath, code);
 
     return {
       filePath: outputFilePath,
