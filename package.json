@@ -44,9 +44,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "bun build ./src/cli.ts --outdir ./dist --target bun && bun run build:lib && bun run build:types",
-    "build:lib": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "build": "bun run clean && bun build ./src/cli.ts --outdir ./dist --target bun --external cac --external es-toolkit --external picocolors --external ts-morph && bun run build:lib && bun run build:types",
+    "build:lib": "bun build ./src/index.ts --outdir ./dist --target bun --format esm --external cac --external es-toolkit --external picocolors --external ts-morph",
     "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rm -rf dist",
     "dev": "bun run ./src/cli.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
