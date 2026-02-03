@@ -23,6 +23,11 @@ export interface OutputPattern {
 }
 
 /**
+ * Custom variable value type
+ */
+export type VariableValue = string | { regex: string };
+
+/**
  * Mapping rule for file processing
  *
  * Each mapping defines:
@@ -32,9 +37,6 @@ export interface OutputPattern {
 export interface MappingRule {
   /**
    * Glob patterns for file to include
-   *
-   * @example
-   * ['src/dto/**\/*.ts', "src/models/**\/*.ts"]
    */
   include: string[];
 
@@ -42,6 +44,15 @@ export interface MappingRule {
    * Output pattern configuration
    */
   output: OutputPattern;
+
+  /**
+   * Custom variables for the output pattern
+   *
+   * @example
+   * { "version": "v1" }
+   * { "module": { "regex": "src/([^/]+)/" } }
+   */
+  variables?: Record<string, VariableValue>;
 }
 
 /**

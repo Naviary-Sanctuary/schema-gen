@@ -648,6 +648,131 @@ describe('ConfigLoader', () => {
       });
     });
 
+    describe('validate - variables errors', () => {
+      test('should throw when variables is not an object', async () => {
+        const configPath = await createConfigFile(
+          'variables-not-object.json',
+          JSON.stringify({
+            mappings: [
+              {
+                include: ['src/**/*.ts'],
+                output: { pattern: 'schemas/{filename}.schema.ts' },
+                variables: 'not-an-object',
+              },
+            ],
+            generator: 'typebox',
+          }),
+        );
+
+        const loader = new ConfigLoader(configPath);
+
+        await expect(loader.load()).rejects.toThrow(ConfigValidationError);
+        await expect(loader.load()).rejects.toThrow('Mapping rule 1: "variables" must be an object');
+      });
+
+      test('should throw when variable value is not string or regex object', async () => {
+        const configPath = await createConfigFile(
+          'variable-invalid-value.json',
+          JSON.stringify({
+            mappings: [
+              {
+                include: ['src/**/*.ts'],
+                output: { pattern: 'schemas/{filename}.schema.ts' },
+                variables: {
+                  version: 123,
+                },
+              },
+            ],
+            generator: 'typebox',
+          }),
+        );
+
+        const loader = new ConfigLoader(configPath);
+
+        await expect(loader.load()).rejects.toThrow(ConfigValidationError);
+        await expect(loader.load()).rejects.toThrow(
+          'Mapping rule 1: Variable "version" must be a string or an object with a "regex" string field',
+        );
+      });
+
+      test('should throw when variable regex object is missing regex field', async () => {
+        const configPath = await createConfigFile(
+          'variable-missing-regex.json',
+          JSON.stringify({
+            mappings: [
+              {
+                include: ['src/**/*.ts'],
+                output: { pattern: 'schemas/{filename}.schema.ts' },
+                variables: {
+                  module: { pattern: 'src/([^/]+)/' },
+                },
+              },
+            ],
+            generator: 'typebox',
+          }),
+        );
+
+        const loader = new ConfigLoader(configPath);
+
+        await expect(loader.load()).rejects.toThrow(ConfigValidationError);
+        await expect(loader.load()).rejects.toThrow(
+          'Mapping rule 1: Variable "module" must be a string or an object with a "regex" string field',
+        );
+      });
+
+      test('should throw when variable regex value is not a string', async () => {
+        const configPath = await createConfigFile(
+          'variable-regex-not-string.json',
+          JSON.stringify({
+            mappings: [
+              {
+                include: ['src/**/*.ts'],
+                output: { pattern: 'schemas/{filename}.schema.ts' },
+                variables: {
+                  module: { regex: 123 },
+                },
+              },
+            ],
+            generator: 'typebox',
+          }),
+        );
+
+        const loader = new ConfigLoader(configPath);
+
+        await expect(loader.load()).rejects.toThrow(ConfigValidationError);
+        await expect(loader.load()).rejects.toThrow(
+          'Mapping rule 1: Variable "module" must be a string or an object with a "regex" string field',
+        );
+      });
+
+      test('should pass with valid variables (string and regex)', async () => {
+        const configPath = await createConfigFile(
+          'valid-variables.json',
+          JSON.stringify({
+            mappings: [
+              {
+                include: ['src/**/*.ts'],
+                output: { pattern: 'schemas/{version}/{module}/{filename}.ts' },
+                variables: {
+                  version: 'v1',
+                  module: { regex: 'src/([^/]+)/' },
+                },
+              },
+            ],
+            generator: 'typebox',
+          }),
+        );
+
+        const loader = new ConfigLoader(configPath);
+        const config = await loader.load();
+
+        expect(config.mappings[0]?.variables).toEqual({
+          version: 'v1',
+          module: { regex: 'src/([^/]+)/' },
+        });
+      });
+    });
+
     describe('validate - generator errors', () => {
       test('should throw when generator is missing', async () => {
         const configPath = await createConfigFile(

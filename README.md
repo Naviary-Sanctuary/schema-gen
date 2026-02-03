@@ -201,6 +201,9 @@ Each mapping rule defines which files to process and where to output schemas:
   "include": string[];  // Glob patterns for files to process
   "output": {
     "pattern": string;  // Output path pattern with variables
+  },
+  "variables": {        // [Optional] Custom variables
+    [key: string]: string | { regex: string };
   }
 }
 ```
@@ -212,6 +215,41 @@ Use these variables in your output patterns:
 - `{filename}`: Filename without extension (e.g., `user` from `user.ts`)
 - `{dirname}`: Directory path (e.g., `src/models` from `src/models/user.ts`)
 - `{extension}`: File extension (e.g., `.ts`)
+
+### Custom Variables
+
+You can define custom variables for each mapping rule. These can be static strings or dynamic values extracted from the source file path using regular expressions.
+
+#### Static Variables
+
+```json
+{
+  "include": ["src/**/*.ts"],
+  "output": { "pattern": "generated/{version}/{filename}.ts" },
+  "variables": {
+    "version": "v1"
+  }
+}
+```
+
+#### Dynamic Extraction (Regex)
+
+Extract parts of the source path using the first capturing group of a regular expression:
+
+```json
+{
+  "include": ["src/modules/*/domain/*.ts"],
+  "output": { "pattern": "generated/{module}/{filename}.schema.ts" },
+  "variables": {
+    "module": { "regex": "src/modules/([^/]+)/" }
+  }
+}
+```
+
+If the source file is `src/modules/user/domain/model.ts`, the `{module}` variable will be `user`.
+
+> [!TIP]
+> Custom variables can also be used to override built-in variables like `{filename}` or `{dirname}` if you define them with the same name.
 
 ### Advanced Configuration Examples
 

@@ -190,5 +190,54 @@ describe('PathResolver', () => {
         expect(result).toBe(output);
       });
     });
+
+    describe('custom variables', () => {
+      test('should resolve static custom variables', () => {
+        const result = resolver.resolve('src/user.ts', 'schemas/{version}/{filename}.ts', { version: 'v1' });
+        expect(result).toBe('schemas/v1/user.ts');
+      });
+
+      test('should resolve multiple custom variables', () => {
+        const result = resolver.resolve('src/user.ts', 'schemas/{version}/{env}/{filename}.ts', {
+          version: 'v1',
+          env: 'prod',
+        });
+        expect(result).toBe('schemas/v1/prod/user.ts');
+      });
+
+      test('should resolve regex extraction variables', () => {
+        const result = resolver.resolve('src/user/domain/model.ts', 'generated/{module}/{filename}.ts', {
+          module: { regex: 'src/([^/]+)/' },
+        });
+        expect(result).toBe('generated/user/model.ts');
+      });
+
+      test('should resolve deep regex extraction', () => {
+        const result = resolver.resolve(
+          'src/modules/billing/domain/entities/invoice.ts',
+          'api/{module}/schemas/{filename}.ts',
+          {
+            module: { regex: 'src/modules/([^/]+)/' },
+          },
+        );
+        expect(result).toBe('api/billing/schemas/invoice.ts');
+      });
+
+      test('should handle regex with no match', () => {
+        const result = resolver.resolve('src/other/model.ts', 'generated/{module}/{filename}.ts', {
+          module: { regex: 'src/modules/([^/]+)/' },
+        });
+        expect(result).toBe('generated//model.ts');
+      });
+
+      test('should prioritize built-in variables over custom ones if they overlap (built-ins are applied first)', () => {
+        // Current implementation replaces built-ins first, then custom.
+        // If a custom variable name is 'filename', it will replace '{filename}' AFTER the built-in one already did.
+        // So {filename} -> 'user' -> 'custom-user' (if custom variable 'user' exists? No, it looks for '{user}')
+        // If custom variable key is 'filename', it looks for '{filename}'.
+        const result = resolver.resolve('src/user.ts', 'schemas/{filename}.ts', { filename: 'custom' });
+        expect(result).toBe('schemas/custom.ts');
+      });
+    });
   });
 });

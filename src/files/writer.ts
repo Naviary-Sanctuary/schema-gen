@@ -1,6 +1,6 @@
 import { mkdir } from 'fs/promises';
 import { dirname } from 'path';
-import type { WriteModeType } from '@types';
+import type { VariableValue, WriteModeType } from '@types';
 import { PathResolver } from '@libs/path';
 
 /**
@@ -18,10 +18,12 @@ export class FileWriter {
   private readonly pattern: string;
   private readonly mode: WriteModeType;
   private readonly pathResolver: PathResolver;
+  private readonly variables?: Record<string, VariableValue>;
 
-  constructor(config: { pattern: string; mode?: WriteModeType }) {
+  constructor(config: { pattern: string; mode?: WriteModeType; variables?: Record<string, VariableValue> }) {
     this.pattern = config.pattern;
     this.mode = config.mode ?? 'separate';
+    this.variables = config.variables;
     this.pathResolver = new PathResolver();
   }
 
@@ -63,7 +65,7 @@ export class FileWriter {
    * @returns The result of the write operation
    */
   private async writeSeparate(code: string, sourcePath: string): Promise<WriteResult> {
-    const outputFilePath = this.pathResolver.resolve(sourcePath, this.pattern);
+    const outputFilePath = this.pathResolver.resolve(sourcePath, this.pattern, this.variables);
     await this.ensureDirectoryExists(dirname(outputFilePath));
 
     const fileExists = await Bun.file(outputFilePath).exists();

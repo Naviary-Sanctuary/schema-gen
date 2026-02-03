@@ -72,6 +72,7 @@ export class SchemaGen {
     const writer = new FileWriter({
       pattern: mapping.output.pattern,
       mode: this.config.mode,
+      variables: mapping.variables,
     });
 
     const results = await Promise.all(

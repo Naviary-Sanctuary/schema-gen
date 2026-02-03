@@ -1,4 +1,5 @@
 import { basename, dirname, extname } from 'path';
+import type { VariableValue } from '@types';
 
 /**
  * Path information extracted from source file
@@ -29,9 +30,11 @@ export class PathResolver {
    * - {filename}: Filename without extension
    * - {dirname}: Directory path
    * - {extension}: File extension
+   * - {key}: Custom variables defined in config
    *
    * @param sourcePath - Source file path to extract information from
    * @param pattern - Template pattern with variables
+   * @param customVariables - Optional custom variables or regex-based extraction rules
    * @returns Resolved path
    *
    * @example
@@ -42,18 +45,47 @@ export class PathResolver {
    * resolver.resolve('src/user.ts', 'schemas/{filename}.schema.ts');
    * // → 'schemas/user.schema.ts'
    *
-   * // Preserve directory structure
-   * resolver.resolve('src/models/user.ts', '{dirname}/schemas/{filename}.ts');
-   * // → 'src/models/schemas/user.ts'
+   * // Custom variables
+   * resolver.resolve('src/user.ts', 'schemas/{version}/{filename}.ts', { version: 'v1' });
+   * // → 'schemas/v1/user.ts'
    *
-   * // Use extension
-   * resolver.resolve('src/user.dto.ts', 'schemas/{filename}{extension}');
-   * // → 'schemas/user.dto.ts'
+   * // Regex extraction
+   * resolver.resolve('src/user/domain/model.ts', 'generated/{module}/{filename}.ts', {
+   *   module: { regex: 'src/([^/]+)/' }
+   * });
+   * // → 'generated/user/model.ts'
    * ```
    */
-  resolve(sourcePath: string, pattern: string): string {
+  resolve(sourcePath: string, pattern: string, customVariables?: Record<string, VariableValue>): string {
     const path = this.extractPath(sourcePath);
-    return this.applyPattern(pattern, path);
+    const evaluatedVariables = this.evaluateVariables(sourcePath, customVariables);
+
+    return this.applyPattern(pattern, path, evaluatedVariables);
+  }
+
+  /**
+   * Evaluate custom variables against source path
+   */
+  private evaluateVariables(sourcePath: string, variables?: Record<string, VariableValue>): Record<string, string> {
+    if (!variables) return {};
+
+    const evaluated: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(variables)) {
+      if (typeof value === 'string') {
+        evaluated[key] = value;
+      } else if (typeof value === 'object' && 'regex' in value) {
+        const regex = new RegExp(value.regex);
+        const match = sourcePath.match(regex);
+        if (match && match[1]) {
+          evaluated[key] = match[1];
+        } else {
+          evaluated[key] = ''; // Or perhaps a placeholder or throw-away
+        }
+      }
+    }
+
+    return evaluated;
   }
 
   /**
@@ -91,12 +123,21 @@ export class PathResolver {
    *
    * @param pattern - Template pattern
    * @param path - Path information
+   * @param customVariables - Evaluated custom variables
    * @returns Resolved path
    */
-  private applyPattern(pattern: string, path: Path): string {
-    return pattern
+  private applyPattern(pattern: string, path: Path, customVariables: Record<string, string>): string {
+    let resolved = pattern;
+
+    for (const [key, value] of Object.entries(customVariables)) {
+      resolved = resolved.replaceAll(`{${key}}`, value);
+    }
+
+    resolved = resolved
       .replaceAll('{filename}', path.filename)
       .replaceAll('{dirname}', path.dirname)
       .replaceAll('{extension}', path.extension);
+
+    return resolved;
   }
 }

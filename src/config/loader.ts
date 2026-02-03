@@ -100,7 +100,31 @@ export class ConfigLoader {
       ) {
         throw new ConfigValidationError(`${prefix}: "output.pattern" must be a non-empty string`);
       }
+
+      if (mapping.variables !== undefined) {
+        this.validateVariables(mapping.variables, prefix);
+      }
     });
+  }
+
+  private validateVariables(variables: Record<string, any>, prefix: string) {
+    if (!isPlainObject(variables)) {
+      throw new ConfigValidationError(`${prefix}: "variables" must be an object`);
+    }
+
+    for (const [key, value] of Object.entries(variables)) {
+      if (typeof value === 'string') {
+        continue;
+      }
+
+      if (isPlainObject(value) && typeof value.regex === 'string') {
+        continue;
+      }
+
+      throw new ConfigValidationError(
+        `${prefix}: Variable "${key}" must be a string or an object with a "regex" string field`,
+      );
+    }
   }
 
   private validateGenerator(generator: SupportedGeneratorType) {
