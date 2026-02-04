@@ -168,6 +168,9 @@ schema-gen generate
 
 # With custom config path
 schema-gen generate -c custom-config.json
+
+# For specific file only (ignores "include" patterns)
+schema-gen generate --target src/models/user.ts
 ```
 
 ## Configuration
@@ -196,6 +199,7 @@ schema-gen generate -c custom-config.json
 | `mappings`  | `MappingRule[]`          | ✓        | Array of mapping rules defining input/output patterns       |
 | `generator` | `"elysia" \| "typebox"`  | ✓        | Schema generator to use                                     |
 | `exclude`   | `string[]`               | ✗        | Global exclude patterns                                     |
+| `overwrite` | `boolean`                | ✗        | Whether to overwrite existing files (default: `false`)      |
 | `mode`      | `"separate" \| "inline"` | ✗        | Generation mode (default: `"separate"`, inline coming soon) |
 
 ### Mapping Rule
