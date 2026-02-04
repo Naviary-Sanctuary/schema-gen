@@ -19,11 +19,18 @@ export class FileWriter {
   private readonly mode: WriteModeType;
   private readonly pathResolver: PathResolver;
   private readonly variables?: Record<string, VariableValue>;
+  private readonly overwrite: boolean;
 
-  constructor(config: { pattern: string; mode?: WriteModeType; variables?: Record<string, VariableValue> }) {
+  constructor(config: {
+    pattern: string;
+    mode?: WriteModeType;
+    variables?: Record<string, VariableValue>;
+    overwrite?: boolean;
+  }) {
     this.pattern = config.pattern;
     this.mode = config.mode ?? 'separate';
     this.variables = config.variables;
+    this.overwrite = config.overwrite ?? false;
     this.pathResolver = new PathResolver();
   }
 
@@ -33,7 +40,7 @@ export class FileWriter {
    * Automatically:
    * - Creates output directory if it doesn't exist
    * - Generates appropriate file name
-   * - Overwrites existing files
+   * - Overwrites existing files (if configured)
    *
    * @param files
    * @returns
@@ -71,6 +78,13 @@ export class FileWriter {
     const fileExists = await access(outputFilePath)
       .then(() => true)
       .catch(() => false);
+
+    if (fileExists && !this.overwrite) {
+      return {
+        filePath: outputFilePath,
+        created: false,
+      };
+    }
 
     await writeFile(outputFilePath, code);
 

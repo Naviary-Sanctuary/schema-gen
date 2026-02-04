@@ -93,8 +93,11 @@ describe('FileWriter Test', () => {
         expect.assertions(3);
       });
 
-      test('should overwrite existing file', async () => {
-        const writer = new FileWriter({ pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts') });
+      test('should overwrite existing file when overwrite is true', async () => {
+        const writer = new FileWriter({
+          pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts'),
+          overwrite: true,
+        });
         const firstCode = 'export const v1 = {};';
         const secondCode = 'export const v2 = {};';
 
@@ -108,6 +111,28 @@ describe('FileWriter Test', () => {
             expect(results2[0].filePath).toBe(results1[0].filePath);
             const content = await Bun.file(results2[0].filePath).text();
             expect(content).toBe(secondCode);
+          }
+        }
+        expect.assertions(5);
+      });
+
+      test('should not overwrite existing file by default (overwrite: false)', async () => {
+        const writer = new FileWriter({
+          pattern: join(TEST_OUTPUT_DIR, '{filename}.schema.ts'),
+        });
+        const firstCode = 'export const v1 = {};';
+        const secondCode = 'export const v2 = {};';
+
+        const results1 = await writer.write([{ code: firstCode, sourcePath: 'user.ts' }]);
+        if (results1[0]) {
+          expect(results1[0].created).toBe(true);
+          expect(await Bun.file(results1[0].filePath).text()).toBe(firstCode);
+          const results2 = await writer.write([{ code: secondCode, sourcePath: 'user.ts' }]);
+          if (results2[0]) {
+            expect(results2[0].created).toBe(false);
+            expect(results2[0].filePath).toBe(results1[0].filePath);
+            const content = await Bun.file(results2[0].filePath).text();
+            expect(content).toBe(firstCode); // Should still be firstCode
           }
         }
         expect.assertions(5);

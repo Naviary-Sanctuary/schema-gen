@@ -62,6 +62,15 @@ export class ConfigLoader {
     if (config.exclude !== undefined) {
       this.validateExclude(config.exclude);
     }
+    if (config.overwrite !== undefined) {
+      this.validateOverwrite(config.overwrite);
+    }
+  }
+
+  private validateOverwrite(overwrite: any) {
+    if (typeof overwrite !== 'boolean') {
+      throw new ConfigValidationError('Config "overwrite" must be a boolean');
+    }
   }
 
   private validateMappings(mappings: MappingRule[]) {

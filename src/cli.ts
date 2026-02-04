@@ -47,14 +47,15 @@ cli
   .option('-c, --config <path>', 'Path to the config file', {
     default: 'schema-gen.config.json',
   })
-  .action(async (configPath: string) => {
+  .option('-t, --target <path>', 'Target file path to generate schemas for')
+  .action(async (configPath: string, options: { target?: string }) => {
     try {
       const loader = new ConfigLoader(configPath);
       const config = await loader.load();
 
       console.log(pc.cyan('-> Generating schemas...\n'));
 
-      const gen = new SchemaGen(config);
+      const gen = new SchemaGen(config, { target: options.target });
       const result = await gen.run();
 
       console.log(pc.green('\n✓ Success!'));
@@ -62,6 +63,12 @@ cli
       console.log(pc.cyan(`  Schemas generated: ${result.schemasGenerated}`));
       console.log(pc.cyan(`  Files created:     ${result.filesCreated}`));
       console.log(pc.cyan(`  Files overwritten: ${result.filesOverwritten}`));
+
+      if (result.filesProcessed === 0) {
+        console.log(pc.yellow('\n⚠ No files were processed.'));
+        console.log(pc.gray('  Check if your mapping "include" patterns match the source files,'));
+        console.log(pc.gray('  or use --target <path> to force process a specific file.'));
+      }
     } catch (err) {
       handleError(err);
       process.exit(1);

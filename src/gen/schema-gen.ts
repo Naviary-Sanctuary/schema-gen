@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { FileMatcher, FileWriter } from '../files';
 import { TypeBoxGenerator, type SchemaGenerator } from '../generator';
 import { Parser } from '../parser';
@@ -65,7 +66,22 @@ export class SchemaGen {
       exclude: this.config.exclude,
     });
 
-    const files = await matcher.find();
+    let files = await matcher.find();
+
+    if (this.options.target) {
+      const targetPath = resolve(this.options.target);
+      const hasTarget = files.some((file) => resolve(file) === targetPath);
+
+      if (hasTarget) {
+        files = files.filter((file) => resolve(file) === targetPath);
+      } else {
+        files = [this.options.target];
+      }
+    }
+
+    if (files.length === 0) {
+      return [];
+    }
 
     this.options.onProgress?.({ type: 'start', totalFiles: files.length });
 
@@ -73,6 +89,7 @@ export class SchemaGen {
       pattern: mapping.output.pattern,
       mode: this.config.mode,
       variables: mapping.variables,
+      overwrite: this.config.overwrite,
     });
 
     const results = await Promise.all(

@@ -9,15 +9,6 @@ export type WriteModeType = (typeof WRITE_MODES)[number];
 export interface OutputPattern {
   /**
    * Output path pattern with template variables
-   *
-   * Available variables:
-   * - {filename}: Filename without extension (e.g., 'user' from 'user.ts')
-   * - {dirname}: Original directory path (e.g., 'src/models' from 'src/models/user.ts')
-   * - {extension}: File extension (e.g., '.ts')
-   * @example
-   * // Pattern: "src/route/{filename}/schema.ts"
-   * // Input:   src/models/user.ts
-   * // Output:  src/route/user/schema.ts
    */
   pattern: string;
 }
@@ -29,10 +20,6 @@ export type VariableValue = string | { regex: string };
 
 /**
  * Mapping rule for file processing
- *
- * Each mapping defines:
- * - Which files to process (include)
- * - Where to output the generated schema (output pattern)
  */
 export interface MappingRule {
   /**
@@ -47,10 +34,6 @@ export interface MappingRule {
 
   /**
    * Custom variables for the output pattern
-   *
-   * @example
-   * { "version": "v1" }
-   * { "module": { "regex": "src/([^/]+)/" } }
    */
   variables?: Record<string, VariableValue>;
 }
@@ -63,28 +46,27 @@ export interface Config {
   tsConfigPath?: string;
   /**
    * Mapping rules
-   *
-   * Each rule defines which files to process and where to output the generated schema.
-   * Rules are processed in order - first match wins.
    */
   mappings: MappingRule[];
 
   /**
-   * Schema generator to use for this mapping
+   * Schema generator to use
    */
   generator: SupportedGeneratorType;
 
   /**
-   * Generation mode for this mapping (optional)
-   *
-   * If not specified, uses 'separate' mode as default.
+   * Generation mode (optional)
    */
   mode?: WriteModeType;
 
   /**
-   * exclude patterns (applied to all mappings)
-   *
-   * @example ["**\/*.test.ts", "**\/*.spec.ts"]
+   * exclude patterns
    */
   exclude?: string[];
+
+  /**
+   * Whether to overwrite existing files
+   * @default false
+   */
+  overwrite?: boolean;
 }

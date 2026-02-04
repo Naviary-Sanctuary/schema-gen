@@ -72,4 +72,10 @@ export type ProgressEvent =
 export interface SchemaGenOptions {
   /** Progress callback for monitoring generation process */
   onProgress?: ProgressCallback;
+
+  /**
+   * Optional target file path to process.
+   * If provided, only this file will be processed if it matches any include patterns.
+   */
+  target?: string;
 }
