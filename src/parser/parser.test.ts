@@ -290,5 +290,44 @@ describe('Parser', () => {
       }
       expect.assertions(10);
     });
+
+    test('should parse template literal types', () => {
+      const filePath = path.join(FIXTURES_DIR, 'template-literal.ts');
+      const result = parser.parseFile(filePath);
+
+      expect(result).toHaveLength(1);
+      const parsed = result[0];
+      if (parsed) {
+        const id = parsed.properties.find((p) => p.name === 'id');
+        // console.log(JSON.stringify(id?.type, null, 2));
+        expect(id?.type).toEqual({
+          kind: 'templateLiteral',
+          elements: [
+            { kind: 'literal', value: 'id-' },
+            { kind: 'primitive', type: 'number' },
+          ],
+        });
+
+        const date = parsed.properties.find((p) => p.name === 'date');
+        expect(date?.type).toEqual({
+          kind: 'templateLiteral',
+          elements: [
+            { kind: 'primitive', type: 'number' },
+            { kind: 'literal', value: '-' },
+            { kind: 'primitive', type: 'number' },
+            { kind: 'literal', value: '-' },
+            { kind: 'primitive', type: 'number' },
+          ],
+        });
+
+        const status = parsed.properties.find((p) => p.name === 'status');
+        expect(status?.type.kind).toBe('union');
+        if (status?.type.kind === 'union') {
+          expect(status.type.types).toContainEqual({ kind: 'literal', value: 'status-active' });
+          expect(status.type.types).toContainEqual({ kind: 'literal', value: 'status-inactive' });
+        }
+      }
+      expect.assertions(6);
+    });
   });
 });

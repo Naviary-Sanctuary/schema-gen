@@ -145,12 +145,34 @@ export class TypeBoxGenerator implements SchemaGenerator {
         return this.generateRecordType(type.keyType, type.valueType);
       case 'intersection':
         return this.generateIntersectionType(type.types);
+      case 'templateLiteral':
+        return this.generateTemplateLiteralType(type.elements);
       case 'never':
         return 't.Never()';
       default:
         const _exhaustive: never = type;
         throw new Error(`Unsupported type: ${JSON.stringify(_exhaustive)}`);
     }
+  }
+
+  /**
+   * Generate template literal type code
+   *
+   * @param elements - The elements of the template literal (alternating strings and types)
+   * @returns TypeBox template literal code
+   *
+   * @example
+   * ```typescript
+   * elements: [
+   *   { kind: 'literal', value: 'id-' },
+   *   { kind: 'primitive', type: 'number' }
+   * ]
+   * → "t.TemplateLiteral([t.Literal('id-'), t.Number()])"
+   * ```
+   */
+  private generateTemplateLiteralType(elements: PropertyType[]): string {
+    const elementCodes = elements.map((el) => this.generateType(el)).join(', ');
+    return `t.TemplateLiteral([${elementCodes}])`;
   }
 
   /**

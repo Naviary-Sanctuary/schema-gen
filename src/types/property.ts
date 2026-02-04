@@ -23,6 +23,7 @@ export type PropertyType =
   | LiteralType
   | RecordType
   | IntersectionType
+  | TemplateLiteralType
   | NeverType;
 
 /**
@@ -213,4 +214,24 @@ export interface IntersectionType {
  */
 export interface NeverType {
   kind: 'never';
+}
+
+/**
+ * Template Literal types
+ *
+ * @example
+ * ```typescript
+ * type T = `id-${number}`
+ * → {
+ *     kind: 'templateLiteral',
+ *     elements: [
+ *       { kind: 'literal', value: 'id-' },
+ *       { kind: 'primitive', type: 'number' }
+ *     ]
+ *   }
+ * ```
+ */
+export interface TemplateLiteralType {
+  kind: 'templateLiteral';
+  elements: PropertyType[];
 }

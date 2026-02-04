@@ -524,6 +524,65 @@ export const userSchema = t.Object({
   tags: t.Array(t.String()) });`);
       });
     });
+
+    describe('template literal types', () => {
+      test('should generate TemplateLiteral for simple template', () => {
+        const parsedClass: ParsedClass = {
+          name: 'Test',
+          filePath: 'test.ts',
+          isExported: true,
+          properties: [
+            {
+              name: 'id',
+              type: {
+                kind: 'templateLiteral',
+                elements: [
+                  { kind: 'literal', value: 'id-' },
+                  { kind: 'primitive', type: 'number' },
+                ],
+              },
+              isOptional: false,
+              isReadonly: false,
+              hasDefaultValue: false,
+            },
+          ],
+        };
+
+        const result = generator.generate(parsedClass);
+        expect(result).toContain("id: t.TemplateLiteral([t.Literal('id-'), t.Number()])");
+      });
+
+      test('should generate TemplateLiteral for complex template', () => {
+        const parsedClass: ParsedClass = {
+          name: 'Test',
+          filePath: 'test.ts',
+          isExported: true,
+          properties: [
+            {
+              name: 'date',
+              type: {
+                kind: 'templateLiteral',
+                elements: [
+                  { kind: 'primitive', type: 'number' },
+                  { kind: 'literal', value: '-' },
+                  { kind: 'primitive', type: 'number' },
+                  { kind: 'literal', value: '-' },
+                  { kind: 'primitive', type: 'number' },
+                ],
+              },
+              isOptional: false,
+              isReadonly: false,
+              hasDefaultValue: false,
+            },
+          ],
+        };
+
+        const result = generator.generate(parsedClass);
+        expect(result).toContain(
+          "date: t.TemplateLiteral([t.Number(), t.Literal('-'), t.Number(), t.Literal('-'), t.Number()])",
+        );
+      });
+    });
   });
 
   describe('record types', () => {

@@ -277,6 +277,27 @@ export class Parser {
         }),
       };
     }
+    // #region Check Template Literal type
+    if (type.isTemplateLiteral()) {
+      const compilerType = (type as any).compilerType;
+
+      const texts = compilerType.texts as string[];
+      const types = compilerType.types as any[];
+
+      const elements: PropertyType[] = [];
+
+      for (let i = 0; i < texts.length; i++) {
+        if (texts[i]) {
+          elements.push({ kind: 'literal', value: texts[i]! });
+        }
+        if (i < types.length) {
+          const innerType = (type as any)._context.compilerFactory.getType(types[i]!);
+          elements.push(this.parsePropertyType(innerType));
+        }
+      }
+
+      return { kind: 'templateLiteral', elements };
+    }
     // #endregion
 
     throw new Error(`Unsupported type: ${type.getText()}`);
