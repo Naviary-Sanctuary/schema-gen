@@ -139,7 +139,7 @@ describe('ConfigLoader', () => {
       });
 
       test('should support all generators', async () => {
-        const generators = ['typebox', 'elysia'] as const;
+        const generators = ['typebox', 'elysia', 'zod'] as const;
 
         for (const generator of generators) {
           const configPath = await createConfigFile(
