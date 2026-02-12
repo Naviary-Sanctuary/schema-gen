@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { FileMatcher, FileWriter } from '../files';
-import { TypeBoxGenerator, type SchemaGenerator } from '../generator';
+import { TypeBoxGenerator, ZodGenerator, type SchemaGenerator } from '../generator';
 import { Parser } from '../parser';
 import type { Config, GenerateResult, MappingRule, SchemaGenerationResult, SchemaGenOptions } from '@types';
 
@@ -32,6 +32,8 @@ export class SchemaGen {
         return new TypeBoxGenerator('elysia');
       case 'typebox':
         return new TypeBoxGenerator('typebox');
+      case 'zod':
+        return new ZodGenerator();
       default:
         const _exhaustive: never = this.config.generator;
         throw new Error(`Unsupported generator: ${_exhaustive}`);

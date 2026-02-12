@@ -35,7 +35,7 @@ This is:
 ## Features
 
 - 🚀 Generate schemas from TypeScript classes
-- 📦 Multiple schema libraries: **Elysia** and **TypeBox**
+- 📦 Multiple schema libraries: **Elysia**, **TypeBox**, and **Zod**
 - 📝 Separate file generation (inline mode coming soon)
 - ⚙️ Flexible configuration via `schema-gen.config.json`
 - 🎯 Optimized for Bun, compatible with Node.js
@@ -197,7 +197,7 @@ schema-gen generate --target src/models/user.ts
 | Option      | Type                     | Required | Description                                                 |
 | ----------- | ------------------------ | -------- | ----------------------------------------------------------- |
 | `mappings`  | `MappingRule[]`          | ✓        | Array of mapping rules defining input/output patterns       |
-| `generator` | `"elysia" \| "typebox"`  | ✓        | Schema generator to use                                     |
+| `generator` | `"elysia" \| "typebox" \| "zod"` | ✓        | Schema generator to use                            |
 | `exclude`   | `string[]`               | ✗        | Global exclude patterns                                     |
 | `overwrite` | `boolean`                | ✗        | Whether to overwrite existing files (default: `false`)      |
 | `mode`      | `"separate" \| "inline"` | ✗        | Generation mode (default: `"separate"`, inline coming soon) |
