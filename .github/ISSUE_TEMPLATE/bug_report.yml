@@ -1,0 +1,132 @@
+name: Bug report
+description: Report a reproducible problem in schema-gen
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue.
+        Please provide enough detail so maintainers can reproduce and fix it quickly.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I can reproduce this issue on the latest release.
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the bug.
+      placeholder: "schema-gen generate fails when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide exact steps and sample files if possible.
+      placeholder: |
+        1. Run `schema-gen init`
+        2. Update config to ...
+        3. Run `schema-gen generate`
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: "The schema file should be generated at ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      placeholder: "Command exits with ..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: generator
+    attributes:
+      label: Generator
+      options:
+        - elysia
+        - typebox
+        - zod
+        - not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installation Method
+      options:
+        - Homebrew
+        - npm
+        - bun
+        - Manual binary
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: schema_gen_version
+    attributes:
+      label: schema-gen Version
+      placeholder: "0.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js Version
+      placeholder: "20.18.0"
+
+  - type: input
+    id: bun_version
+    attributes:
+      label: Bun Version
+      placeholder: "1.2.21"
+
+  - type: input
+    id: ts_version
+    attributes:
+      label: TypeScript Version
+      placeholder: "5.9.3"
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: "macOS 15.4 / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Config Snippet
+      description: Paste relevant `schema-gen.config.json` content.
+      render: json
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Output
+      description: Paste command output, stack trace, or screenshots.
+      render: shell

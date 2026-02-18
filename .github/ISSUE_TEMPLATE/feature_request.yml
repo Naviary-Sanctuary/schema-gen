@@ -1,0 +1,80 @@
+name: Feature request
+description: Suggest an improvement for schema-gen
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion.
+        High-quality feature requests include a clear problem statement and concrete expected behavior.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: This request is scoped to schema-gen behavior (not unrelated tooling).
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem are you trying to solve?
+      placeholder: "When generating schemas for ..., it is hard to ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the ideal behavior.
+      placeholder: "Add a config option that ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe other solutions or workarounds you considered.
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example Usage
+      description: Provide example config, input class, or expected output.
+      render: typescript
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Define what "done" looks like.
+      placeholder: |
+        - `schema-gen generate` supports ...
+        - Output should ...
+        - Existing behavior remains ...
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - Nice to have
+        - Medium
+        - High
+        - Critical blocker
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add links, prior art, or related issues.

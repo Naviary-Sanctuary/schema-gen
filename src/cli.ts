@@ -33,7 +33,7 @@ cli.command('init', 'Create a default config file').action(async () => {
     console.log(pc.green('✓ Created schema-gen.config.json'));
     console.log(pc.gray('\n  Next steps:'));
     console.log(pc.gray('  1. Edit schema-gen.config.json to configure your mappings'));
-    console.log(pc.gray('  2. Run: schema-gen'));
+    console.log(pc.gray('  2. Run: schema-gen generate'));
   } catch (err) {
     handleError(err);
     process.exit(1);
@@ -44,13 +44,12 @@ cli.command('init', 'Create a default config file').action(async () => {
 // #region Generate Command
 cli
   .command('generate [config]', 'Generate schemas from classes')
-  .option('-c, --config <path>', 'Path to the config file', {
-    default: 'schema-gen.config.json',
-  })
+  .option('-c, --config <path>', 'Path to the config file')
   .option('-t, --target <path>', 'Target file path to generate schemas for')
-  .action(async (configPath: string, options: { target?: string }) => {
+  .action(async (configPath: string | undefined, options: { config?: string; target?: string }) => {
     try {
-      const loader = new ConfigLoader(configPath);
+      const resolvedConfigPath = options.config ?? configPath;
+      const loader = new ConfigLoader(resolvedConfigPath);
       const config = await loader.load();
 
       console.log(pc.cyan('-> Generating schemas...\n'));
@@ -101,7 +100,7 @@ function handleError(error: unknown): void {
     console.error(pc.red('✗ Error\n'));
     console.error(pc.gray(`  ${error.message}\n`));
 
-    // Stack trace는 개발 모드일 때만
+    // Show stack trace only in debug mode
     if (process.env.DEBUG) {
       console.error(pc.gray('\nStack trace:'));
       console.error(pc.gray(error.stack || 'No stack trace available'));

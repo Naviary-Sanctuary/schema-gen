@@ -1,67 +1,79 @@
-# Contributing to `elysia-schema-gen`
+# Contributing to `schema-gen`
 
-Thank you for showing interest in `elysia-schema-gen` and we appreciate any contribution.
+Thank you for contributing to `schema-gen`.
 
-## Report a Bug or Feature
+## Before You Start
 
-Whenever you find something that is not working properly, please first search the repository's issue page and make sure it's not reported by someone else already.
+- Search [existing issues](https://github.com/Naviary-Sanctuary/schema-gen/issues) before opening a new one.
+- For bugs and features, use the issue templates for faster triage.
 
-Before creating an issue, check the `Issue Template` for guidelines. Provide as much detail as possible.
+## Report Issues
 
-You can submit issues with [our issue form](https://github.com/Naviary-Sanctuary/elysia-schema-gen/issues/new/choose)
+Use the GitHub issue form:
 
-## Open a PR for Bugfix or Feature
+- [Open an issue](https://github.com/Naviary-Sanctuary/schema-gen/issues/new/choose)
 
-1. Fork this repository.
-2. Create a new branch:
+Include clear reproduction steps, expected behavior, and environment details.
 
-```sh
-# from main branch.
-git checkout -b [branch name or issue number]
+## Development Setup
+
+```bash
+# 1. Fork and clone the repository
+git clone https://github.com/<your-account>/schema-gen.git
+cd schema-gen
+
+# 2. Install dependencies
+bun install
+
+# 3. Run tests
+bun test
 ```
 
-</br>
+## Create a Pull Request
 
-3. Commit your changes
+1. Create a branch from `main`.
 
-- follow below [Commit Convention](#commit-convention) (optional)
-
-```sh
-# example
-git commit -m "your message"
+```bash
+git checkout -b <branch-name>
 ```
 
-</br>
+2. Commit your changes.
 
-4. Push your changes:
-
-```sh
-git push origin [branch name or issue number]
+```bash
+git commit -m "feat: add support for ..."
 ```
 
-</br>
+3. Push your branch.
 
-5. Create a Pull Request
-
-- Check the [pull_request_template](.github/pull_request_template.md) for guidelines.
-
-</br>
-
-## Commit Convention
-
+```bash
+git push origin <branch-name>
 ```
-breaking: top-level version bump. used for major framework changes or large-scale project deployments.
-feat: new feature for the user, not a new feature for building script
-fix: bug fix for the user, not a fix to a build script
-docs: changes to the documentation
-style: formatting, missing semi-colons, etc; no production code change
-refactor: refactoring production code, eg. renaming a variable
-test: adding missing tests, refactoring tests; no production code change
-chore: updating grunt tasks etc; no production code change
-```
+
+4. Open a pull request using the PR template.
+
+## Commit Messages
+
+Conventional commit style is recommended:
+
+- `feat`: new functionality
+- `fix`: bug fix
+- `docs`: documentation changes
+- `refactor`: internal code changes without behavior change
+- `test`: test updates
+- `chore`: maintenance tasks
+- `breaking`: major change that requires a breaking release
+
+## Pull Request Checklist
+
+- Keep changes focused and scoped.
+- Add or update tests when behavior changes.
+- Update docs when CLI/config behavior changes.
+- Ensure lint, type checks, and tests pass locally.
+
+## Code of Conduct
+
+By participating, you agree to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT License](LICENSE)
-</br>
-Make sure to review it before contributing.
+By contributing, you agree that your contributions are licensed under the [MIT License](./LICENSE).

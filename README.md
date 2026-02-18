@@ -1,49 +1,29 @@
 # schema-gen
 
-CLI tool to automatically generate validation schemas from TypeScript class definitions
+`schema-gen` is a CLI that generates runtime validation schemas from exported TypeScript classes.
 
-## Why?
+It helps you keep class models and validation schemas in sync without hand-writing the same structure twice.
 
-When building APIs with validation, you often define classes for your DTOs (or domain models) and then have to manually write validation schemas:
+## Why schema-gen
 
-```typescript
-// 1. You write your class
-class User {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-}
-
-// 2. Then you manually write the schema again
-const userSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  email: t.String(),
-  createdAt: t.Date(),
-});
-```
-
-This is:
-
-- ❌ Repetitive and error-prone
-- ❌ Hard to maintain (changes need to be synced)
-- ❌ Time-consuming
-
-**schema-gen** automatically generates validation schemas from your TypeScript classes, keeping them in sync with a single command.
+When projects grow, it is easy for class definitions and validation schemas to drift.
+`schema-gen` reduces that maintenance cost by generating schemas directly from class types.
 
 ## Features
 
-- 🚀 Generate schemas from TypeScript classes
-- 📦 Multiple schema libraries: **Elysia**, **TypeBox**, and **Zod**
-- 📝 Separate file generation (inline mode coming soon)
-- ⚙️ Flexible configuration via `schema-gen.config.json`
-- 🎯 Optimized for Bun, compatible with Node.js
-- 🔧 CLI flags override config for one-off cases
+- Generate schemas from exported TypeScript classes.
+- Support multiple generators: `elysia`, `typebox`, and `zod`.
+- Configure file matching and output paths with glob patterns.
+- Use built-in and custom output variables.
+- Exclude patterns globally.
+- Generate for all matched files or a single target file.
+
+## Requirements
+
+- Bun `>= 1.0.0` or Node.js `>= 18.0.0`
+- TypeScript `^5.9.3` (peer dependency)
 
 ## Installation
-
-Choose your preferred installation method:
 
 ### Homebrew (macOS/Linux)
 
@@ -52,32 +32,30 @@ brew tap Naviary-Sanctuary/schema-gen
 brew install schema-gen
 ```
 
-### Bun (Recommended)
+### Bun
 
 ```bash
 bun install -g @naviary-sanctuary/schema-gen
 ```
 
-### Node.js / npm
-
-This package supports Node.js >= 18.0.0.
+### npm
 
 ```bash
 npm install -g @naviary-sanctuary/schema-gen
 ```
 
-### Quick Install Script
+### Install Script
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Naviary-Sanctuary/schema-gen/main/install.sh | bash
 ```
 
-### Manual Installation
+### Manual Binary
 
-Download the latest binary from [GitHub Releases](https://github.com/Naviary-Sanctuary/schema-gen/releases):
+Download from [GitHub Releases](https://github.com/Naviary-Sanctuary/schema-gen/releases):
 
 ```bash
-# macOS (ARM64)
+# macOS (arm64)
 curl -L https://github.com/Naviary-Sanctuary/schema-gen/releases/latest/download/schema-gen-macos-arm64 -o schema-gen
 chmod +x schema-gen
 sudo mv schema-gen /usr/local/bin/
@@ -90,30 +68,15 @@ sudo mv schema-gen /usr/local/bin/
 
 ## Quick Start
 
-### 1. Initialize Configuration
+### 1. Initialize config
 
 ```bash
 schema-gen init
 ```
 
-This creates a `schema-gen.config.json` file:
+This creates `schema-gen.config.json`.
 
-```json
-{
-  "mappings": [
-    {
-      "include": ["src/**/*.ts"],
-      "output": {
-        "pattern": "schemas/{filename}.schema.ts"
-      }
-    }
-  ],
-  "generator": "elysia",
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
-}
-```
-
-### 2. Create Your Classes
+### 2. Add an exported class
 
 ```typescript
 // src/models/user.ts
@@ -127,16 +90,15 @@ export class User {
 }
 ```
 
-### 3. Generate Schemas
+### 3. Generate schemas
 
 ```bash
 schema-gen generate
 ```
 
-### 4. Result
+### 4. Generated output example (`elysia`)
 
 ```typescript
-// schemas/user.schema.ts
 import { t } from 'elysia';
 
 export const userSchema = t.Object({
@@ -149,102 +111,108 @@ export const userSchema = t.Object({
 });
 ```
 
-## CLI Commands
+## CLI Reference
 
-### `init`
+### `schema-gen init`
 
-Create a default configuration file:
+Create a default `schema-gen.config.json` in the current directory.
 
 ```bash
 schema-gen init
 ```
 
-### `generate`
+### `schema-gen generate`
 
-Generate schemas from your classes:
+Generate schemas using the configured mappings.
 
 ```bash
+# Use default config path: ./schema-gen.config.json
 schema-gen generate
 
-# With custom config path
-schema-gen generate -c custom-config.json
+# Pass config path as positional argument
+schema-gen generate ./schema-gen.prod.json
 
-# For specific file only (ignores "include" patterns)
+# Pass config path using option
+schema-gen generate --config ./schema-gen.prod.json
+
+# Generate for a single source file
 schema-gen generate --target src/models/user.ts
 ```
 
 ## Configuration
 
-### Basic Configuration
+### Full config shape
 
 ```json
 {
+  "tsConfigPath": "tsconfig.json",
   "mappings": [
     {
       "include": ["src/**/*.ts"],
       "output": {
         "pattern": "schemas/{filename}.schema.ts"
+      },
+      "variables": {
+        "module": {
+          "regex": "src/modules/([^/]+)/"
+        },
+        "version": "v1"
       }
     }
   ],
   "generator": "elysia",
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+  "mode": "separate",
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "overwrite": false
 }
 ```
 
-### Configuration Options
+### Options
 
-| Option      | Type                     | Required | Description                                                 |
-| ----------- | ------------------------ | -------- | ----------------------------------------------------------- |
-| `mappings`  | `MappingRule[]`          | ✓        | Array of mapping rules defining input/output patterns       |
-| `generator` | `"elysia" \| "typebox" \| "zod"` | ✓        | Schema generator to use                            |
-| `exclude`   | `string[]`               | ✗        | Global exclude patterns                                     |
-| `overwrite` | `boolean`                | ✗        | Whether to overwrite existing files (default: `false`)      |
-| `mode`      | `"separate" \| "inline"` | ✗        | Generation mode (default: `"separate"`, inline coming soon) |
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tsConfigPath` | `string` | No | Path to `tsconfig.json` used by the parser. |
+| `mappings` | `MappingRule[]` | Yes | Input/output rules for source files. |
+| `generator` | `"elysia" \| "typebox" \| "zod"` | Yes | Generator backend for output schema code. |
+| `mode` | `"separate" \| "inline"` | No | Write mode. `inline` is not implemented yet. |
+| `exclude` | `string[]` | No | Global exclude patterns. |
+| `overwrite` | `boolean` | No | Overwrite existing files. Default is `false`. |
 
-### Mapping Rule
-
-Each mapping rule defines which files to process and where to output schemas:
+### Mapping rule
 
 ```typescript
 {
-  "include": string[];  // Glob patterns for files to process
-  "output": {
-    "pattern": string;  // Output path pattern with variables
-  },
-  "variables": {        // [Optional] Custom variables
-    [key: string]: string | { regex: string };
-  }
+  include: string[];
+  output: {
+    pattern: string;
+  };
+  variables?: Record<string, string | { regex: string }>;
 }
 ```
 
-### Output Pattern Variables
+### Output variables
 
-Use these variables in your output patterns:
+Built-in variables for `output.pattern`:
 
-- `{filename}`: Filename without extension (e.g., `user` from `user.ts`)
-- `{dirname}`: Directory path (e.g., `src/models` from `src/models/user.ts`)
-- `{extension}`: File extension (e.g., `.ts`)
+- `{filename}`: source filename without extension
+- `{dirname}`: source directory path
+- `{extension}`: source file extension
 
-### Custom Variables
+### Custom variables
 
-You can define custom variables for each mapping rule. These can be static strings or dynamic values extracted from the source file path using regular expressions.
-
-#### Static Variables
+Static variable:
 
 ```json
 {
   "include": ["src/**/*.ts"],
-  "output": { "pattern": "generated/{version}/{filename}.ts" },
+  "output": { "pattern": "generated/{version}/{filename}.schema.ts" },
   "variables": {
     "version": "v1"
   }
 }
 ```
 
-#### Dynamic Extraction (Regex)
-
-Extract parts of the source path using the first capturing group of a regular expression:
+Regex variable (first capture group is used):
 
 ```json
 {
@@ -256,155 +224,30 @@ Extract parts of the source path using the first capturing group of a regular ex
 }
 ```
 
-If the source file is `src/modules/user/domain/model.ts`, the `{module}` variable will be `user`.
+If the source file is `src/modules/user/domain/model.ts`, `{module}` becomes `user`.
 
-> [!TIP]
-> Custom variables can also be used to override built-in variables like `{filename}` or `{dirname}` if you define them with the same name.
+## Supported TypeScript Types
 
-### Advanced Configuration Examples
+- Primitive: `string`, `number`, `boolean`, `Date`, `null`, `undefined`, `any`
+- Array types
+- Object types
+- Union and intersection types
+- Literal types (`"active"`, `1`, `true`, etc.)
+- Template literal types (mapped to string-compatible output)
+- `Record<K, V>` and index-signature-like record objects
+- `never`
 
-#### Multiple Mappings
+## Generators
 
-Process different source directories to different outputs:
+- `elysia` -> `import { t } from 'elysia'`
+- `typebox` -> `import { Type as t } from '@sinclair/typebox'`
+- `zod` -> `import { z } from 'zod'`
 
-```json
-{
-  "mappings": [
-    {
-      "include": ["src/models/**/*.ts"],
-      "output": {
-        "pattern": "src/route/{filename}/schema.ts"
-      }
-    },
-    {
-      "include": ["src/dto/**/*.ts"],
-      "output": {
-        "pattern": "src/api/schemas/{filename}.schema.ts"
-      }
-    }
-  ],
-  "generator": "elysia"
-}
-```
+## Current Limitations
 
-**Result:**
-
-```
-src/models/user.ts       → src/route/user/schema.ts
-src/dto/product.dto.ts   → src/api/schemas/product.dto.schema.ts
-```
-
-#### Preserve Directory Structure
-
-Keep the original directory structure in output:
-
-```json
-{
-  "mappings": [
-    {
-      "include": ["src/**/*.ts"],
-      "output": {
-        "pattern": "{dirname}/schemas/{filename}.schema.ts"
-      }
-    }
-  ],
-  "generator": "typebox"
-}
-```
-
-**Result:**
-
-```
-src/models/user.ts              → src/models/schemas/user.schema.ts
-src/models/domain/product.ts    → src/models/domain/schemas/product.schema.ts
-```
-
-#### Negative Patterns
-
-Exclude specific patterns from processing:
-
-```json
-{
-  "mappings": [
-    {
-      "include": ["src/**/*.ts", "!src/draft/**", "!src/internal/**"],
-      "output": {
-        "pattern": "schemas/{filename}.schema.ts"
-      }
-    }
-  ],
-  "generator": "elysia",
-  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"]
-}
-```
-
-## Supported Types
-
-schema-gen supports a wide range of TypeScript types:
-
-### Primitives
-
-- `string`, `number`, `boolean`, `Date`
-- `null`, `undefined`, `any`
-
-### Arrays
-
-```typescript
-tags: string[]           // → t.Array(t.String())
-matrix: number[][]       // → t.Array(t.Array(t.Number()))
-```
-
-### Objects
-
-```typescript
-address: {
-  street: string;
-  city: string;
-}
-// → t.Object({ street: t.String(), city: t.String() })
-```
-
-### Unions & Literals
-
-```typescript
-status: 'active' | 'inactive'; // → t.UnionEnum(['active', 'inactive'])
-priority: 1 | 2 | 3; // → t.UnionEnum([1, 2, 3])
-value: string | number; // → t.Union([t.String(), t.Number()])
-```
-
-### Optional Properties
-
-```typescript
-age?: number             // → t.Optional(t.Number())
-```
-
-## Schema Generators
-
-### Elysia
-
-Uses Elysia's built-in `t` utility:
-
-```typescript
-import { t } from 'elysia';
-
-export const userSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-});
-```
-
-### TypeBox
-
-Uses standalone TypeBox library:
-
-```typescript
-import { Type as t } from '@sinclair/typebox';
-
-export const userSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-});
-```
+- Only exported classes are parsed.
+- `inline` mode is not implemented yet.
+- Files are not overwritten unless `overwrite: true` is set.
 
 ## Development
 
@@ -412,31 +255,31 @@ export const userSchema = t.Object({
 # Install dependencies
 bun install
 
-# Run in development
+# Run CLI in development
 bun run dev
 
 # Build
 bun run build
 
-# Run tests
+# Test
 bun test
 
-# Type checking
+# Type check
 bun run typecheck
 
-# Linting
+# Lint
 bun run lint
 
-# Formatting
+# Format
 bun run format
 ```
 
 ## Contributing
 
-This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+This project follows the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](./LICENSE)

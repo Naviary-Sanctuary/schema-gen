@@ -1,30 +1,58 @@
-<!--
-  Thank you for opening a pull request for elysia-schema-gen.
--->
+## Summary
 
-### Description of change
+Describe the change in 2-5 bullets.
 
-<!--
-  Please be clear and concise what the change is intended to do,
-  why this change is needed, and how you've verified that it
-  corrects what you intended.
+- 
 
-  In some cases it may be helpful to include the current behavior
-  and the new behavior.
--->
+## Why This Change
 
-### Pull-Request Checklist
+Explain the problem and why this approach is correct.
 
-<!--
-  Please make sure to review and check all of the following.
+## Linked Issues
 
-  If an item is not applicable, you can add "N/A" to the end.
--->
+- Closes #
+- Related #
 
-- [ ] Code is up-to-date with the `main` branch
-- [ ] There are new or updated unit tests validating the change
-- [ ] Documentation has been updated to reflect this change
+## Scope
 
-<!--
-  🎉 Thank you for contributing and making elysia-schema-gen even better!
--->
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactor
+- [ ] Documentation
+- [ ] CI/Tooling/Chore
+
+## Breaking Changes
+
+- [ ] No breaking changes
+- [ ] Breaking changes included (describe below)
+
+If breaking, include migration notes:
+
+```text
+<what changed, who is affected, how to migrate>
+```
+
+## Validation
+
+List exactly how this was tested.
+
+- [ ] `bun test`
+- [ ] `bun run typecheck`
+- [ ] `bun run lint`
+- [ ] Manual verification (if applicable)
+
+### Validation Output (Optional)
+
+```text
+<paste relevant output>
+```
+
+## Documentation Impact
+
+- [ ] No docs update needed
+- [ ] README updated
+- [ ] CONTRIBUTING/template/docs updated
+
+## Reviewer Notes
+
+Anything reviewers should focus on (risky areas, trade-offs, follow-ups).
